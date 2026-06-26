@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Match History — FC Master</title>
+<title>Roster — FC Master</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -14,8 +14,7 @@
 <header class="site-header">
   <div class="container">
     <a href="index.html" class="brand">
-      <!-- club crest: FC Master logo -->
-      <div class="brand-mark"></div>
+      <img class="brand-mark" src="https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=80&amp;quality=lossless" alt="FC Master logo">
       <div class="brand-text">
         <span class="brand-name">FC MASTER</span>
         <span class="brand-sub">Bluelock Rivals Community</span>
@@ -23,9 +22,9 @@
     </a>
     <nav class="nav">
       <a href="index.html" class="nav-link">Home</a>
-      <a href="matches.html" class="nav-link is-active">Matches</a>
+      <a href="matches.html" class="nav-link">Matches</a>
       <a href="stats.html" class="nav-link">Stats</a>
-      <a href="roster.html" class="nav-link">Roster</a>
+      <a href="roster.html" class="nav-link is-active">Roster</a>
       <span class="nav-link nav-link--soon">Rankings <span class="soon-tag">Soon</span></span>
     </nav>
     <a href="#" class="btn btn-primary">
@@ -38,33 +37,15 @@
 <main>
   <section class="container" style="padding-bottom: 0;">
     <div class="section-head">
-      <span class="eyebrow">Match History</span>
+      <span class="eyebrow">Roster</span>
     </div>
 
-    <div class="filter-bar">
-      <button class="filter-btn is-active" data-filter="ALL">All Results</button>
-      <button class="filter-btn" data-filter="WIN">Wins</button>
-      <button class="filter-btn" data-filter="LOSS">Losses</button>
-      <button class="filter-btn" data-filter="DRAW">Draws</button>
-      <span class="filter-count" id="filter-count">Loading&hellip;</span>
+    <div class="roster-toolbar">
+      <span class="filter-count" id="roster-count">Loading&hellip;</span>
     </div>
 
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Opponent</th>
-            <th>Score</th>
-            <th>Result</th>
-            <th>Tournament</th>
-            <th>MVP</th>
-          </tr>
-        </thead>
-        <tbody id="matches-tbody">
-          <tr><td colspan="6"><div class="state-message">Loading match history&hellip;</div></td></tr>
-        </tbody>
-      </table>
+    <div class="player-grid" id="roster-grid">
+      <div class="state-message">Loading roster&hellip;</div>
     </div>
   </section>
 </main>

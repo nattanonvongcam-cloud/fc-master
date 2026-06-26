@@ -10,6 +10,12 @@ const SHEET_ID = '1xnh81cMtYIHMfO-nr7pKYIu-z2QAtzcdEwshYOd3g4I';
 const SHEET_NAME = 'Matches';
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
+const PLAYERS_SHEET_NAME = 'Players';
+const PLAYERS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(PLAYERS_SHEET_NAME)}`;
+
+// Fallback avatar shown when a player has no Avatar URL in the sheet.
+const DEFAULT_AVATAR = '';
+
 // Opponent crest images, keyed by exact Opponent name as it appears
 // in the sheet. Add more entries here as you get more team logos —
 // any opponent not listed just falls back to the plain placeholder box.
@@ -104,6 +110,56 @@ async function fetchMatches() {
   if (!res.ok) throw new Error(`Sheet request failed (${res.status})`);
   const text = await res.text();
   return rowsToMatches(parseCSV(text));
+}
+
+// Turns raw Players-tab CSV rows into player objects, skipping rows
+// without a usable name (e.g. stray blank rows).
+function rowsToPlayers(rows) {
+  if (rows.length === 0) return [];
+  const headers = rows[0].map(normalizeHeader);
+  const idx = {
+    name: headers.indexOf('name'),
+    role: headers.indexOf('role'),
+    team: headers.indexOf('team'),
+    joined: headers.indexOf('joined'),
+    goals: headers.indexOf('goals'),
+    assists: headers.indexOf('assists'),
+    mvps: headers.indexOf('mvps'),
+    avatar: headers.indexOf('avatar'),
+  };
+
+  const players = [];
+  for (let r = 1; r < rows.length; r++) {
+    const cells = rows[r];
+    const name = (cells[idx.name] || '').trim();
+    if (!name) continue;
+
+    const joinedRaw = (cells[idx.joined] || '').trim();
+    const joinedDate = joinedRaw ? new Date(joinedRaw) : null;
+
+    players.push({
+      name,
+      role: (cells[idx.role] || '').trim() || 'Player',
+      team: (cells[idx.team] || '').trim() || 'Main',
+      joinedRaw,
+      joined: joinedDate && !isNaN(joinedDate.getTime()) ? joinedDate : null,
+      goals: parseInt(cells[idx.goals], 10) || 0,
+      assists: parseInt(cells[idx.assists], 10) || 0,
+      mvps: parseInt(cells[idx.mvps], 10) || 0,
+      avatar: (cells[idx.avatar] || '').trim(),
+    });
+  }
+
+  // Leaderboard-style order: most goals first.
+  players.sort((a, b) => b.goals - a.goals);
+  return players;
+}
+
+async function fetchPlayers() {
+  const res = await fetch(PLAYERS_CSV_URL);
+  if (!res.ok) throw new Error(`Sheet request failed (${res.status})`);
+  const text = await res.text();
+  return rowsToPlayers(parseCSV(text));
 }
 
 // ---- HELPERS --------------------------------------------------
@@ -488,15 +544,154 @@ function renderCharts(matches) {
 }
 
 // =========================================================
+// ROSTER PAGE (player grid)
+// =========================================================
+function initials(name) {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+}
+
+function avatarMarkup(player, sizeClass) {
+  if (player.avatar) {
+    return `<img class="${sizeClass}" src="${escapeHTML(player.avatar)}" alt="${escapeHTML(player.name)}">`;
+  }
+  return `<div class="${sizeClass} ${sizeClass}--fallback">${escapeHTML(initials(player.name))}</div>`;
+}
+
+function playerLink(player) {
+  return `player.html?name=${encodeURIComponent(player.name)}`;
+}
+
+function renderRoster(players) {
+  const grid = document.getElementById('roster-grid');
+  const countEl = document.getElementById('roster-count');
+  if (!grid) return;
+
+  if (countEl) countEl.textContent = `${players.length} player${players.length === 1 ? '' : 's'}`;
+
+  if (players.length === 0) {
+    grid.innerHTML = emptyState('No players yet. Add a row to the Players sheet to see them here.');
+    return;
+  }
+
+  grid.innerHTML = players.map(p => `
+    <a class="panel player-card" href="${playerLink(p)}">
+      ${avatarMarkup(p, 'player-card__avatar')}
+      <span class="player-card__name">${escapeHTML(p.name)}</span>
+      <span class="player-card__role">${escapeHTML(p.role)}</span>
+      <span class="cell-tournament-tag player-card__team">${escapeHTML(p.team)}</span>
+      <div class="player-card__stats">
+        <div class="player-card__stat">
+          <span class="player-card__stat-value">${p.goals}</span>
+          <span class="player-card__stat-label">Goals</span>
+        </div>
+        <div class="player-card__stat">
+          <span class="player-card__stat-value">${p.assists}</span>
+          <span class="player-card__stat-label">Assists</span>
+        </div>
+        <div class="player-card__stat">
+          <span class="player-card__stat-value">${p.mvps}</span>
+          <span class="player-card__stat-label">MVPs</span>
+        </div>
+      </div>
+    </a>
+  `).join('');
+}
+
+// =========================================================
+// PLAYER PROFILE PAGE
+// =========================================================
+function getQueryParam(key) {
+  return new URLSearchParams(window.location.search).get(key);
+}
+
+function renderPlayerProfile(players, matches) {
+  const wrap = document.getElementById('player-profile');
+  if (!wrap) return;
+
+  const requested = (getQueryParam('name') || '').trim().toLowerCase();
+  const player = players.find(p => p.name.toLowerCase() === requested);
+
+  if (!requested || !player) {
+    wrap.innerHTML = emptyState('Player not found. Go back to the Roster and pick a player card.');
+    document.title = 'Player Not Found — FC Master';
+    const mvpSection = document.getElementById('player-mvp-matches');
+    if (mvpSection) mvpSection.innerHTML = '';
+    return;
+  }
+
+  document.title = `${player.name} — FC Master`;
+
+  wrap.innerHTML = `
+    <div class="player-profile__header">
+      ${avatarMarkup(player, 'player-profile__avatar')}
+      <div class="player-profile__id">
+        <h1 class="player-profile__name">${escapeHTML(player.name)}</h1>
+        <div class="player-profile__tags">
+          <span class="badge badge--draw">${escapeHTML(player.role)}</span>
+          <span class="cell-tournament-tag">${escapeHTML(player.team)}</span>
+        </div>
+        <span class="player-profile__joined">${player.joined ? `Joined ${formatDate(player.joined)}` : ''}</span>
+      </div>
+    </div>
+  `;
+
+  const statGrid = document.getElementById('player-stat-grid');
+  if (statGrid) {
+    statGrid.innerHTML = `
+      <div class="panel stat-card">
+        <span class="stat-card__label">Goals</span>
+        <span class="stat-card__value stat-card__value--win">${player.goals}</span>
+        <span class="stat-card__sub">Career total</span>
+      </div>
+      <div class="panel stat-card">
+        <span class="stat-card__label">Assists</span>
+        <span class="stat-card__value">${player.assists}</span>
+        <span class="stat-card__sub">Career total</span>
+      </div>
+      <div class="panel stat-card">
+        <span class="stat-card__label">MVP Awards</span>
+        <span class="stat-card__value">${player.mvps}</span>
+        <span class="stat-card__sub">Player of the match</span>
+      </div>
+    `;
+  }
+
+  const mvpSection = document.getElementById('player-mvp-matches');
+  if (mvpSection) {
+    const mvpMatches = matches.filter(m => m.mvp && m.mvp.toLowerCase() === player.name.toLowerCase());
+    if (mvpMatches.length === 0) {
+      mvpSection.innerHTML = emptyState('No recorded MVP matches yet.');
+    } else {
+      mvpSection.innerHTML = mvpMatches.slice(0, 6).map(m => `
+        <div class="panel match-card-mini">
+          <div class="match-card-mini__top">
+            <span class="match-card-mini__opponent">vs ${escapeHTML(m.opponent)}</span>
+            ${badgeFor(m.result)}
+          </div>
+          <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
+          <span class="match-card-mini__date">${formatDate(m.date)}</span>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+// =========================================================
 // INIT — detect which page we're on by its DOM, then render
 // =========================================================
 async function init() {
   const isHome = document.getElementById('recent-matches');
   const isMatchesPage = document.getElementById('matches-tbody');
   const isStatsPage = document.getElementById('chart-winrate');
+  const isRosterPage = document.getElementById('roster-grid');
+  const isPlayerPage = document.getElementById('player-profile');
+  const needsPlayers = isRosterPage || isPlayerPage;
 
   try {
-    const matches = await fetchMatches();
+    const [matches, players] = await Promise.all([
+      fetchMatches(),
+      needsPlayers ? fetchPlayers() : Promise.resolve([]),
+    ]);
     ALL_MATCHES = matches;
 
     if (isHome) renderHome(matches);
@@ -508,9 +703,11 @@ async function init() {
       renderStreakStats(matches);
       renderCharts(matches);
     }
+    if (isRosterPage) renderRoster(players);
+    if (isPlayerPage) renderPlayerProfile(players, matches);
   } catch (err) {
     console.error('FC Master: failed to load match data', err);
-    const msg = 'Check that the Google Sheet is shared as "Anyone with the link" and the tab is named "Matches".';
+    const msg = 'Check that the Google Sheet is shared as "Anyone with the link" and the tabs are named "Matches" and "Players".';
 
     if (isHome) {
       ['latest-match', 'recent-matches'].forEach(id => {
@@ -526,6 +723,12 @@ async function init() {
     if (isStatsPage) {
       renderStreakStats([]);
       ['chart-winrate', 'chart-breakdown', 'chart-goals'].forEach(id => showChartMessage(id, msg));
+    }
+    if (isRosterPage) {
+      document.getElementById('roster-grid').innerHTML = errorState(msg);
+    }
+    if (isPlayerPage) {
+      document.getElementById('player-profile').innerHTML = errorState(msg);
     }
   }
 }

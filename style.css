@@ -650,6 +650,143 @@ tbody tr:hover { background: rgba(91, 157, 255, 0.04); }
 }
 
 /* =========================================================
+   Roster — player grid
+   ========================================================= */
+.roster-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+.roster-toolbar .filter-count { margin-left: 0; }
+
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.player-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.player-card:hover {
+  border-color: var(--border-line-strong);
+  transform: translateY(-2px);
+}
+.player-card__avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-line-strong);
+  margin-bottom: 6px;
+}
+.player-card__avatar--fallback,
+.player-profile__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-panel-raised);
+  color: var(--accent-blue-bright);
+  font-family: var(--font-eyebrow);
+  font-weight: 600;
+}
+.player-card__avatar--fallback { font-size: 22px; }
+.player-card__name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.01em;
+}
+.player-card__role {
+  font-family: var(--font-eyebrow);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-blue-bright);
+}
+.player-card__team { margin: 4px 0 10px; }
+.player-card__stats {
+  display: flex;
+  width: 100%;
+  border-top: 1px solid var(--border-line);
+  padding-top: 12px;
+  gap: 4px;
+}
+.player-card__stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.player-card__stat-value {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.player-card__stat-label {
+  font-family: var(--font-eyebrow);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+@media (max-width: 920px) {
+  .player-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .player-grid { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
+   Player profile page
+   ========================================================= */
+.player-profile__header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.player-profile__avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-line-strong);
+  flex-shrink: 0;
+}
+.player-profile__avatar--fallback { font-size: 30px; }
+.player-profile__id {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.player-profile__name {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 40px);
+  margin: 0;
+  line-height: 1;
+}
+.player-profile__tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.player-profile__joined {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+@media (max-width: 560px) {
+  .player-profile__header { flex-direction: column; text-align: center; }
+}
+
+/* =========================================================
    Footer
    ========================================================= */
 .site-footer {
