@@ -14,7 +14,7 @@ const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=
 // in the sheet. Add more entries here as you get more team logos —
 // any opponent not listed just falls back to the plain placeholder box.
 const OPPONENT_LOGOS = {
-  'Eclipse': 'https://ibb.co/zVshnwwR',
+  'Eclipse': 'https://i.ibb.co/Zzd6LCC8/png-clipart-empty-set-null-set-null-sign-mathematics-mathematics-angle-logo-thumbnail.png',
 };
 
 // ---- CSV PARSING --------------------------------------------
@@ -157,8 +157,7 @@ function renderHome(matches) {
       latestEl.innerHTML = `
         <div class="latest-match">
           <div class="latest-match__side">
-            <div class="team-crest"></div>
-            <span class="latest-match__name">FC Master</span>
+	  <img class="team-crest" src="https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=80&quality=lossless" alt="FC Master logo">
           </div>
           <div class="latest-match__score">
             <span>${m.scoreFor}</span>
