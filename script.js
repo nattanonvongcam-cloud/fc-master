@@ -12,6 +12,8 @@ const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=
 
 const PLAYERS_SHEET_NAME = 'Players';
 const PLAYERS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(PLAYERS_SHEET_NAME)}`;
+const TEAMS_SHEET_NAME = 'Teams';
+const TEAMS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TEAMS_SHEET_NAME)}`;
 
 // Fallback avatar shown when a player has no Avatar URL in the sheet.
 const DEFAULT_AVATAR = '';
@@ -69,6 +71,7 @@ function rowsToMatches(rows) {
     scoreAgainst: headers.indexOf('scoreagainst'),
     tournament: headers.indexOf('tournament'),
     mvp: headers.indexOf('mvp'),
+    teamId: headers.indexOf('teamid'),
   };
 
   const matches = [];
@@ -96,6 +99,7 @@ function rowsToMatches(rows) {
       scoreAgainst,
       tournament: (cells[idx.tournament] || '').trim() || 'Friendly',
       mvp: (cells[idx.mvp] || '').trim(),
+      teamId: (idx.teamId >= 0 ? (cells[idx.teamId] || '') : '').trim() || 'main',
       result,
     });
   }
@@ -160,6 +164,45 @@ async function fetchPlayers() {
   if (!res.ok) throw new Error(`Sheet request failed (${res.status})`);
   const text = await res.text();
   return rowsToPlayers(parseCSV(text));
+}
+
+// Turns raw Teams-tab CSV rows into team objects, skipping rows
+// without a usable name (e.g. stray blank rows).
+function rowsToTeams(rows) {
+  if (rows.length === 0) return [];
+  const headers = rows[0].map(normalizeHeader);
+  const idx = {
+    teamId: headers.indexOf('teamid'),
+    name: headers.indexOf('name'),
+    captain: headers.indexOf('captain'),
+    description: headers.indexOf('description'),
+    logo: headers.indexOf('logo'),
+  };
+
+  const teams = [];
+  for (let r = 1; r < rows.length; r++) {
+    const cells = rows[r];
+    const name = (cells[idx.name] || '').trim();
+    if (!name) continue;
+
+    teams.push({
+      teamId: (cells[idx.teamId] || '').trim() || 'main',
+      name,
+      captain: (cells[idx.captain] || '').trim() || 'TBD',
+      description: (cells[idx.description] || '').trim(),
+      logo: (cells[idx.logo] || '').trim(),
+    });
+  }
+
+  teams.sort((a, b) => a.name.localeCompare(b.name));
+  return teams;
+}
+
+async function fetchTeams() {
+  const res = await fetch(TEAMS_CSV_URL);
+  if (!res.ok) throw new Error(`Sheet request failed (${res.status})`);
+  const text = await res.text();
+  return rowsToTeams(parseCSV(text));
 }
 
 // ---- HELPERS --------------------------------------------------
@@ -597,6 +640,27 @@ function renderRoster(players) {
   `).join('');
 }
 
+function renderTeams(teams) {
+  const grid = document.getElementById('teams-grid');
+  if (!grid) return;
+
+  if (teams.length === 0) {
+    grid.innerHTML = emptyState('No teams yet. Add a row to the Teams sheet to see them here.');
+    return;
+  }
+
+  grid.innerHTML = teams.map(team => `
+    <a class="panel player-card" href="team.html?id=${encodeURIComponent(team.teamId)}">
+      ${team.logo
+        ? `<img class="player-card__avatar" src="${escapeHTML(team.logo)}" alt="${escapeHTML(team.name)} logo">`
+        : `<div class="player-card__avatar player-card__avatar--fallback">${escapeHTML(initials(team.name))}</div>`}
+      <span class="player-card__name">${escapeHTML(team.name)}</span>
+      <span class="player-card__role">Captain</span>
+      <span class="cell-tournament-tag player-card__team">${escapeHTML(team.captain)}</span>
+    </a>
+  `).join('');
+}
+
 // =========================================================
 // PLAYER PROFILE PAGE
 // =========================================================
@@ -677,6 +741,114 @@ function renderPlayerProfile(players, matches) {
 }
 
 // =========================================================
+// TEAM PROFILE PAGE
+// =========================================================
+function renderTeamProfile(teams, players, matches) {
+  const wrap = document.getElementById('team-profile');
+  const statGrid = document.getElementById('team-stat-grid');
+  const tbody = document.getElementById('team-matches-tbody');
+  const rosterGrid = document.getElementById('team-roster-grid');
+  if (!wrap) return;
+
+  const requested = (getQueryParam('id') || '').trim().toLowerCase();
+  const team = teams.find(t => (t.teamId || '').trim().toLowerCase() === requested);
+
+  if (!requested || !team) {
+    wrap.innerHTML = emptyState('Team not found. Go back to the Teams page and pick a team card.');
+    document.title = 'Team Not Found — FC Master';
+    if (statGrid) statGrid.innerHTML = '';
+    if (tbody) tbody.innerHTML = `<tr><td colspan="6">${emptyState('No team selected.')}</td></tr>`;
+    if (rosterGrid) rosterGrid.innerHTML = '';
+    return;
+  }
+
+  document.title = `${team.name} — FC Master`;
+
+  wrap.innerHTML = `
+    <div class="player-profile__header">
+      ${team.logo
+        ? `<img class="player-profile__avatar" src="${escapeHTML(team.logo)}" alt="${escapeHTML(team.name)} logo">`
+        : `<div class="player-profile__avatar player-profile__avatar--fallback">${escapeHTML(initials(team.name))}</div>`}
+      <div class="player-profile__id">
+        <h1 class="player-profile__name">${escapeHTML(team.name)}</h1>
+        <div class="player-profile__tags">
+          <span class="badge badge--draw">Team</span>
+          <span class="cell-tournament-tag">${escapeHTML(team.captain)}</span>
+        </div>
+        ${team.description ? `<p class="team-profile__description">${escapeHTML(team.description)}</p>` : ''}
+      </div>
+    </div>
+  `;
+
+  const teamMatches = matches.filter(m => (m.teamId || 'main').toLowerCase() === requested);
+  const stats = computeStats(teamMatches);
+
+  if (statGrid) {
+    statGrid.innerHTML = `
+      <div class="panel stat-card">
+        <span class="stat-card__label">Matches</span>
+        <span class="stat-card__value">${stats.total}</span>
+        <span class="stat-card__sub">Team history</span>
+      </div>
+      <div class="panel stat-card">
+        <span class="stat-card__label">Wins</span>
+        <span class="stat-card__value stat-card__value--win">${stats.wins}</span>
+        <span class="stat-card__sub">Matches won</span>
+      </div>
+      <div class="panel stat-card">
+        <span class="stat-card__label">Losses</span>
+        <span class="stat-card__value stat-card__value--loss">${stats.losses}</span>
+        <span class="stat-card__sub">Matches lost</span>
+      </div>
+      <div class="panel stat-card">
+        <span class="stat-card__label">Win Rate</span>
+        <span class="stat-card__value">${stats.winRate}%</span>
+        <span class="stat-card__sub">${stats.draws} draws</span>
+      </div>
+    `;
+  }
+
+  if (tbody) {
+    if (teamMatches.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6">${emptyState('No matches for this team yet.')}</td></tr>`;
+    } else {
+      tbody.innerHTML = teamMatches.map(m => `
+        <tr>
+          <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
+          <td data-label="Opponent">vs ${escapeHTML(m.opponent)}</td>
+          <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
+          <td data-label="Result">${badgeFor(m.result)}</td>
+          <td data-label="Tournament"><span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span></td>
+          <td data-label="MVP" class="cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  if (rosterGrid) {
+    const filteredPlayers = players.filter(p => {
+      const playerTeam = (p.team || '').trim().toLowerCase();
+      const teamName = (team.name || '').trim().toLowerCase();
+      const teamId = (team.teamId || '').trim().toLowerCase();
+      return playerTeam === teamName || playerTeam === teamId || playerTeam === teamId.replace(/\s+/g, '');
+    });
+
+    if (filteredPlayers.length === 0) {
+      rosterGrid.innerHTML = emptyState('No roster members for this team yet.');
+    } else {
+      rosterGrid.innerHTML = filteredPlayers.map(p => `
+        <a class="panel player-card" href="${playerLink(p)}">
+          ${avatarMarkup(p, 'player-card__avatar')}
+          <span class="player-card__name">${escapeHTML(p.name)}</span>
+          <span class="player-card__role">${escapeHTML(p.role)}</span>
+          <span class="cell-tournament-tag player-card__team">${escapeHTML(p.team)}</span>
+        </a>
+      `).join('');
+    }
+  }
+}
+
+// =========================================================
 // INIT — detect which page we're on by its DOM, then render
 // =========================================================
 async function init() {
@@ -685,12 +857,16 @@ async function init() {
   const isStatsPage = document.getElementById('chart-winrate');
   const isRosterPage = document.getElementById('roster-grid');
   const isPlayerPage = document.getElementById('player-profile');
-  const needsPlayers = isRosterPage || isPlayerPage;
+  const isTeamsPage = document.getElementById('teams-grid');
+  const isTeamPage = document.getElementById('team-profile');
+  const needsPlayers = isRosterPage || isPlayerPage || isTeamPage;
+  const needsTeams = isTeamsPage || isTeamPage;
 
   try {
-    const [matches, players] = await Promise.all([
+    const [matches, players, teams] = await Promise.all([
       fetchMatches(),
       needsPlayers ? fetchPlayers() : Promise.resolve([]),
+      needsTeams ? fetchTeams() : Promise.resolve([]),
     ]);
     ALL_MATCHES = matches;
 
@@ -705,9 +881,11 @@ async function init() {
     }
     if (isRosterPage) renderRoster(players);
     if (isPlayerPage) renderPlayerProfile(players, matches);
+    if (isTeamsPage) renderTeams(teams);
+    if (isTeamPage) renderTeamProfile(teams, players, matches);
   } catch (err) {
     console.error('FC Master: failed to load match data', err);
-    const msg = 'Check that the Google Sheet is shared as "Anyone with the link" and the tabs are named "Matches" and "Players".';
+    const msg = 'Check that the Google Sheet is shared as "Anyone with the link" and the tabs are named "Matches", "Players", and "Teams".';
 
     if (isHome) {
       ['latest-match', 'recent-matches'].forEach(id => {
@@ -729,6 +907,12 @@ async function init() {
     }
     if (isPlayerPage) {
       document.getElementById('player-profile').innerHTML = errorState(msg);
+    }
+    if (isTeamsPage) {
+      document.getElementById('teams-grid').innerHTML = errorState(msg);
+    }
+    if (isTeamPage) {
+      document.getElementById('team-profile').innerHTML = errorState(msg);
     }
   }
 }

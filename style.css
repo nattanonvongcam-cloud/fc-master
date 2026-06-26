@@ -751,6 +751,11 @@ tbody tr:hover { background: rgba(91, 157, 255, 0.04); }
   align-items: center;
   gap: 24px;
 }
+.team-profile__description {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  max-width: 680px;
+}
 .player-profile__avatar {
   width: 96px;
   height: 96px;
