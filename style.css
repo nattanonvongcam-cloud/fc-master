@@ -127,9 +127,9 @@ button { font-family: inherit; cursor: pointer; }
   width: 38px;
   height: 38px;
   border-radius: 8px;
+  object-fit: cover;
   background: linear-gradient(145deg, var(--accent-blue), #0b1730);
   flex-shrink: 0;
-  /* club crest placeholder */
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-name {
@@ -219,20 +219,37 @@ button { font-family: inherit; cursor: pointer; }
 section { padding: 44px 0; }
 
 /* =========================================================
-   Hero
+   Hero — pure CSS, no image. Dark gradient + blue glow.
    ========================================================= */
 .hero {
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--border-line);
-  padding-bottom: 56px;
+  padding: 100px 0 84px;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 65% 55% at 50% 0%, rgba(46, 110, 246, 0.22), transparent 70%),
+    linear-gradient(180deg, #0a1224 0%, var(--bg-void) 75%);
 }
-.hero .container {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+.hero-glow {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 680px;
+  height: 460px;
+  background: radial-gradient(circle, rgba(46, 110, 246, 0.45) 0%, transparent 72%);
+  filter: blur(36px);
+  pointer-events: none;
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 32px;
-  padding-top: 60px;
+  max-width: 720px;
+  margin: 0 auto;
 }
 .hero-tag {
   font-family: var(--font-eyebrow);
@@ -244,11 +261,14 @@ section { padding: 44px 0; }
 }
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(48px, 7vw, 84px);
-  line-height: 0.95;
+  font-size: clamp(56px, 10vw, 112px);
+  line-height: 0.92;
   letter-spacing: 0.01em;
-  margin: 0 0 6px 0;
-  text-shadow: 0 0 38px var(--accent-glow);
+  margin: 0 0 10px 0;
+  text-shadow:
+    0 0 30px rgba(91, 157, 255, 0.55),
+    0 0 70px rgba(46, 110, 246, 0.35),
+    0 0 120px rgba(46, 110, 246, 0.2);
 }
 .hero-subtitle {
   font-family: var(--font-eyebrow);
@@ -256,27 +276,23 @@ section { padding: 44px 0; }
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  margin: 0 0 26px 0;
+  margin: 0 0 28px 0;
 }
-.hero-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
 .hero-members {
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--text-secondary);
 }
-.hero-art-wrap {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: linear-gradient(160deg, var(--bg-panel-raised), var(--bg-panel));
-  border: 1px solid var(--border-line);
-}
-.hero-art-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
-@media (max-width: 860px) {
-  .hero .container { grid-template-columns: 1fr; }
-  .hero-art-wrap { max-width: 320px; margin: 0 auto; }
+@media (max-width: 560px) {
+  .hero { padding: 76px 0 60px; }
 }
 
 /* =========================================================
@@ -369,6 +385,7 @@ section { padding: 44px 0; }
   border-radius: 8px;
   background: var(--bg-panel-raised);
   border: 1px solid var(--border-line-strong);
+  object-fit: cover;
 }
 .latest-match__name {
   font-family: var(--font-eyebrow);

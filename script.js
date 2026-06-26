@@ -10,6 +10,13 @@ const SHEET_ID = '1xnh81cMtYIHMfO-nr7pKYIu-z2QAtzcdEwshYOd3g4I';
 const SHEET_NAME = 'Matches';
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
+// Opponent crest images, keyed by exact Opponent name as it appears
+// in the sheet. Add more entries here as you get more team logos —
+// any opponent not listed just falls back to the plain placeholder box.
+const OPPONENT_LOGOS = {
+  'Eclipse': 'https://ibb.co/zVshnwwR',
+};
+
 // ---- CSV PARSING --------------------------------------------
 // Minimal RFC4180-ish parser: handles quoted fields, commas
 // inside quotes, and escaped "" quotes. Good enough for a
@@ -142,6 +149,11 @@ function renderHome(matches) {
       latestEl.innerHTML = emptyState('No matches yet. Add a row to the Matches sheet to see it here.');
     } else {
       const m = matches[0];
+      const opponentLogo = OPPONENT_LOGOS[m.opponent];
+      const opponentCrest = opponentLogo
+        ? `<img class="team-crest" src="${escapeHTML(opponentLogo)}" alt="${escapeHTML(m.opponent)} logo">`
+        : `<div class="team-crest"></div>`;
+
       latestEl.innerHTML = `
         <div class="latest-match">
           <div class="latest-match__side">
@@ -154,7 +166,7 @@ function renderHome(matches) {
             <span>${m.scoreAgainst}</span>
           </div>
           <div class="latest-match__side">
-            <div class="team-crest"></div>
+            ${opponentCrest}
             <span class="latest-match__name">${escapeHTML(m.opponent)}</span>
           </div>
         </div>
