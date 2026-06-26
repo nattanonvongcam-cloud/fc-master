@@ -792,6 +792,82 @@ tbody tr:hover { background: rgba(91, 157, 255, 0.04); }
 }
 
 /* =========================================================
+   Rankings page
+   ========================================================= */
+.rankings-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.rankings-legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.legend-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.legend-card__label {
+  font-family: var(--font-eyebrow);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-blue-bright);
+}
+.legend-card__value {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.rankings-team-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.rankings-crest {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border-line-strong);
+  background: var(--bg-panel-raised);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rankings-crest--fallback {
+  font-family: var(--font-eyebrow);
+  font-size: 12px;
+  color: var(--accent-blue-bright);
+}
+.rankings-team-name {
+  font-family: var(--font-eyebrow);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.rankings-rank {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-blue-bright);
+}
+.rankings-stat {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.rankings-stat--points {
+  font-weight: 700;
+  color: var(--accent-blue-bright);
+}
+@media (max-width: 760px) {
+  .rankings-legend { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
    Footer
    ========================================================= */
 .site-footer {

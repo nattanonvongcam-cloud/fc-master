@@ -661,6 +661,85 @@ function renderTeams(teams) {
   `).join('');
 }
 
+function computeStandings(teams, matches) {
+  const standings = (teams || []).map(team => ({
+    teamId: (team.teamId || '').trim() || 'main',
+    name: team.name,
+    logo: team.logo,
+    mp: 0,
+    w: 0,
+    d: 0,
+    l: 0,
+    gf: 0,
+    ga: 0,
+    gd: 0,
+    pts: 0,
+  }));
+
+  matches.forEach(match => {
+    const teamId = (match.teamId || 'main').trim().toLowerCase();
+    const standing = standings.find(s => (s.teamId || '').trim().toLowerCase() === teamId);
+    if (!standing) return;
+
+    standing.mp += 1;
+    standing.gf += match.scoreFor;
+    standing.ga += match.scoreAgainst;
+    standing.gd = standing.gf - standing.ga;
+
+    if (match.result === 'WIN') {
+      standing.w += 1;
+      standing.pts += 3;
+    } else if (match.result === 'DRAW') {
+      standing.d += 1;
+      standing.pts += 1;
+    } else {
+      standing.l += 1;
+    }
+  });
+
+  return standings.sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.gd !== a.gd) return b.gd - a.gd;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+function renderRankings(teams, matches) {
+  const tbody = document.getElementById('rankings-tbody');
+  if (!tbody) return;
+
+  const standings = computeStandings(teams, matches);
+  if (standings.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8">${emptyState('No standings yet. Add teams and matches to see the table.')}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = standings.map((team, index) => {
+    const rankDisplay = index < 3 ? ['🥇', '🥈', '🥉'][index] : `${index + 1}`;
+    const crest = team.logo
+      ? `<img class="rankings-crest" src="${escapeHTML(team.logo)}" alt="${escapeHTML(team.name)} logo">`
+      : `<div class="rankings-crest rankings-crest--fallback">${escapeHTML(initials(team.name))}</div>`;
+
+    return `
+      <tr>
+        <td data-label="#" class="rankings-rank">${escapeHTML(rankDisplay)}</td>
+        <td data-label="Team">
+          <div class="rankings-team-cell">
+            ${crest}
+            <span class="rankings-team-name">${escapeHTML(team.name)}</span>
+          </div>
+        </td>
+        <td data-label="MP" class="rankings-stat">${team.mp}</td>
+        <td data-label="W" class="rankings-stat">${team.w}</td>
+        <td data-label="D" class="rankings-stat">${team.d}</td>
+        <td data-label="L" class="rankings-stat">${team.l}</td>
+        <td data-label="GD" class="rankings-stat">${team.gd > 0 ? '+' : ''}${team.gd}</td>
+        <td data-label="PTS" class="rankings-stat rankings-stat--points">${team.pts}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
 // =========================================================
 // PLAYER PROFILE PAGE
 // =========================================================
@@ -859,8 +938,9 @@ async function init() {
   const isPlayerPage = document.getElementById('player-profile');
   const isTeamsPage = document.getElementById('teams-grid');
   const isTeamPage = document.getElementById('team-profile');
+  const isRankingsPage = document.getElementById('rankings-root');
   const needsPlayers = isRosterPage || isPlayerPage || isTeamPage;
-  const needsTeams = isTeamsPage || isTeamPage;
+  const needsTeams = isTeamsPage || isTeamPage || isRankingsPage;
 
   try {
     const [matches, players, teams] = await Promise.all([
@@ -883,6 +963,7 @@ async function init() {
     if (isPlayerPage) renderPlayerProfile(players, matches);
     if (isTeamsPage) renderTeams(teams);
     if (isTeamPage) renderTeamProfile(teams, players, matches);
+    if (isRankingsPage) renderRankings(teams, matches);
   } catch (err) {
     console.error('FC Master: failed to load match data', err);
     const msg = 'Check that the Google Sheet is shared as "Anyone with the link" and the tabs are named "Matches", "Players", and "Teams".';
@@ -913,6 +994,9 @@ async function init() {
     }
     if (isTeamPage) {
       document.getElementById('team-profile').innerHTML = errorState(msg);
+    }
+    if (isRankingsPage) {
+      document.getElementById('rankings-tbody').innerHTML = `<tr><td colspan="8">${errorState(msg)}</td></tr>`;
     }
   }
 }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roster — FC Master</title>
+<title>Rankings — FC Master</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -24,12 +24,11 @@
       <a href="index.html" class="nav-link">Home</a>
       <a href="matches.html" class="nav-link">Matches</a>
       <a href="stats.html" class="nav-link">Stats</a>
-      <a href="roster.html" class="nav-link is-active">Roster</a>
+      <a href="roster.html" class="nav-link">Roster</a>
       <a href="teams.html" class="nav-link">Teams</a>
-      <a href="rankings.html" class="nav-link">Rankings</a>
+      <a href="rankings.html" class="nav-link is-active">Rankings</a>
     </nav>
     <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">
-      <!-- discord icon -->
       Join Discord
     </a>
   </div>
@@ -38,15 +37,46 @@
 <main>
   <section class="container" style="padding-bottom: 0;">
     <div class="section-head">
-      <span class="eyebrow">Roster</span>
+      <span class="eyebrow">Standings</span>
     </div>
 
-    <div class="roster-toolbar">
-      <span class="filter-count" id="roster-count">Loading&hellip;</span>
-    </div>
+    <div id="rankings-root" class="rankings-shell">
+      <div class="rankings-legend">
+        <div class="panel legend-card">
+          <span class="legend-card__label">Points</span>
+          <span class="legend-card__value">Win = 3 pts</span>
+          <span class="legend-card__value">Draw = 1 pt</span>
+          <span class="legend-card__value">Loss = 0 pts</span>
+        </div>
+        <div class="panel legend-card">
+          <span class="legend-card__label">Stats</span>
+          <span class="legend-card__value">MP = matches played</span>
+          <span class="legend-card__value">GD = goals difference</span>
+        </div>
+        <div class="panel legend-card">
+          <span class="legend-card__label">Sort Order</span>
+          <span class="legend-card__value">Points</span>
+          <span class="legend-card__value">Goal difference</span>
+        </div>
+      </div>
 
-    <div class="player-grid" id="roster-grid">
-      <div class="state-message">Loading roster&hellip;</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Team</th>
+              <th>MP</th>
+              <th>W</th>
+              <th>D</th>
+              <th>L</th>
+              <th>GD</th>
+              <th>PTS</th>
+            </tr>
+          </thead>
+          <tbody id="rankings-tbody"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 </main>
