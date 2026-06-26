@@ -643,6 +643,12 @@ tbody tr:hover { background: rgba(91, 157, 255, 0.04); }
   height: 240px;
 }
 .chart-canvas-wrap--wide { height: 280px; }
+.chart-canvas-wrap--donut {
+  max-width: 280px;
+  margin: 0 auto;
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
 .chart-canvas-wrap .state-message { padding: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
 
 @media (max-width: 920px) {

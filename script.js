@@ -80,7 +80,7 @@ function rowsToMatches(rows) {
     const dateRaw = (cells[idx.date] || '').trim();
     if (!dateRaw) continue;
 
-    const dateObj = new Date(dateRaw);
+    const dateObj = new Date(dateRaw + 'T00:00:00');
     if (isNaN(dateObj.getTime())) continue;
 
     const scoreFor = parseInt(cells[idx.scoreFor], 10);
@@ -264,7 +264,8 @@ function renderHome(matches) {
       latestEl.innerHTML = `
         <div class="latest-match">
           <div class="latest-match__side">
-	  <img class="team-crest" src="https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=80&quality=lossless" alt="FC Master logo">
+            <img class="team-crest" src="https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=80&quality=lossless" alt="FC Master logo">
+            <span class="latest-match__name">FC Master</span>
           </div>
           <div class="latest-match__score">
             <span>${m.scoreFor}</span>
