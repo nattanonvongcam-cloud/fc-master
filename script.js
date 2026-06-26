@@ -120,6 +120,14 @@ function formatDate(d) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function formatDateShort(d) {
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
 function badgeFor(result) {
   const cls = result === 'WIN' ? 'badge--win' : result === 'LOSS' ? 'badge--loss' : 'badge--draw';
   return `<span class="badge ${cls}">${result}</span>`;
@@ -261,11 +269,231 @@ function setupFilterBar() {
 }
 
 // =========================================================
+// STATS PAGE (streak/average cards + Chart.js visuals)
+// =========================================================
+
+// matches is newest-first. Current streak = how many of the most
+// recent matches share the same result. Best streak = the longest
+// run of consecutive WINs anywhere in the history.
+function computeStreaks(matches) {
+  let current = 0;
+  let currentType = null;
+
+  if (matches.length > 0) {
+    currentType = matches[0].result;
+    for (const m of matches) {
+      if (m.result === currentType) current++;
+      else break;
+    }
+  }
+
+  let best = 0;
+  let run = 0;
+  const chrono = [...matches].reverse();
+  for (const m of chrono) {
+    if (m.result === 'WIN') { run++; if (run > best) best = run; }
+    else { run = 0; }
+  }
+
+  return { current, currentType, best };
+}
+
+function computeAverages(matches) {
+  if (matches.length === 0) return { avgFor: 0, avgAgainst: 0 };
+  const totalFor = matches.reduce((sum, m) => sum + m.scoreFor, 0);
+  const totalAgainst = matches.reduce((sum, m) => sum + m.scoreAgainst, 0);
+  return {
+    avgFor: totalFor / matches.length,
+    avgAgainst: totalAgainst / matches.length,
+  };
+}
+
+function streakSuffix(type) {
+  return type === 'WIN' ? 'W' : type === 'LOSS' ? 'L' : type === 'DRAW' ? 'D' : '';
+}
+
+function streakColorClass(type) {
+  return type === 'WIN' ? 'stat-card__value--win'
+    : type === 'LOSS' ? 'stat-card__value--loss'
+    : type === 'DRAW' ? 'stat-card__value--draw'
+    : '';
+}
+
+function renderStreakStats(matches) {
+  const streaks = computeStreaks(matches);
+  const avgs = computeAverages(matches);
+  const hasMatches = matches.length > 0;
+
+  const currentEl = document.getElementById('stat-current-streak');
+  if (currentEl) {
+    currentEl.textContent = hasMatches ? `${streaks.current}${streakSuffix(streaks.currentType)}` : '—';
+    currentEl.className = `stat-card__value ${hasMatches ? streakColorClass(streaks.currentType) : ''}`;
+  }
+
+  setText('stat-best-streak', hasMatches ? `${streaks.best}W` : '—');
+  setText('stat-avg-for', hasMatches ? avgs.avgFor.toFixed(1) : '—');
+  setText('stat-avg-against', hasMatches ? avgs.avgAgainst.toFixed(1) : '—');
+}
+
+// Cumulative win rate after each match, oldest to newest.
+function computeWinRateSeries(matches) {
+  const chrono = [...matches].reverse();
+  let wins = 0;
+  const labels = [];
+  const data = [];
+  chrono.forEach((m, i) => {
+    if (m.result === 'WIN') wins++;
+    labels.push(formatDateShort(m.date));
+    data.push(Math.round((wins / (i + 1)) * 100));
+  });
+  return { labels, data };
+}
+
+// Goals for/against for the most recent `count` matches, oldest to newest.
+function computeGoalsSeries(matches, count) {
+  const chrono = [...matches].reverse();
+  const slice = chrono.slice(-count);
+  return {
+    labels: slice.map(m => formatDateShort(m.date)),
+    goalsFor: slice.map(m => m.scoreFor),
+    goalsAgainst: slice.map(m => m.scoreAgainst),
+  };
+}
+
+function chartCanvasWrap(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  return canvas ? canvas.closest('.chart-canvas-wrap') : null;
+}
+
+function showChartMessage(canvasId, msg) {
+  const wrap = chartCanvasWrap(canvasId);
+  if (wrap) wrap.innerHTML = emptyState(msg);
+}
+
+let CHART_INSTANCES = [];
+
+function renderCharts(matches) {
+  CHART_INSTANCES.forEach(c => c.destroy());
+  CHART_INSTANCES = [];
+
+  if (typeof Chart === 'undefined') {
+    ['chart-winrate', 'chart-breakdown', 'chart-goals'].forEach(id =>
+      showChartMessage(id, 'Chart library failed to load. Check your connection and refresh.')
+    );
+    return;
+  }
+
+  if (matches.length === 0) {
+    ['chart-winrate', 'chart-breakdown', 'chart-goals'].forEach(id =>
+      showChartMessage(id, 'No matches yet. Add a row to the Matches sheet to see charts here.')
+    );
+    return;
+  }
+
+  const win = cssVar('--win');
+  const loss = cssVar('--loss');
+  const draw = cssVar('--draw');
+  const accentBright = cssVar('--accent-blue-bright');
+  const gridColor = cssVar('--border-line');
+  const textColor = cssVar('--text-secondary');
+  const panelBg = cssVar('--bg-panel');
+
+  Chart.defaults.color = textColor;
+  Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+  Chart.defaults.font.size = 11;
+
+  const legendLabelFont = { family: "'Oswald', sans-serif", size: 11 };
+
+  const winrateCanvas = document.getElementById('chart-winrate');
+  if (winrateCanvas) {
+    const wr = computeWinRateSeries(matches);
+    CHART_INSTANCES.push(new Chart(winrateCanvas, {
+      type: 'line',
+      data: {
+        labels: wr.labels,
+        datasets: [{
+          label: 'Win Rate',
+          data: wr.data,
+          borderColor: accentBright,
+          backgroundColor: 'rgba(91, 157, 255, 0.14)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: gridColor }, ticks: { maxTicksLimit: 6 } },
+          y: { grid: { color: gridColor }, min: 0, max: 100, ticks: { callback: v => v + '%' } },
+        },
+      },
+    }));
+  }
+
+  const breakdownCanvas = document.getElementById('chart-breakdown');
+  if (breakdownCanvas) {
+    const stats = computeStats(matches);
+    CHART_INSTANCES.push(new Chart(breakdownCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Wins', 'Losses', 'Draws'],
+        datasets: [{
+          data: [stats.wins, stats.losses, stats.draws],
+          backgroundColor: [win, loss, draw],
+          borderColor: panelBg,
+          borderWidth: 3,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, padding: 16, font: legendLabelFont } },
+        },
+      },
+    }));
+  }
+
+  const goalsCanvas = document.getElementById('chart-goals');
+  if (goalsCanvas) {
+    const g = computeGoalsSeries(matches, 10);
+    CHART_INSTANCES.push(new Chart(goalsCanvas, {
+      type: 'bar',
+      data: {
+        labels: g.labels,
+        datasets: [
+          { label: 'Goals For', data: g.goalsFor, backgroundColor: win, borderRadius: 4, maxBarThickness: 28 },
+          { label: 'Goals Against', data: g.goalsAgainst, backgroundColor: loss, borderRadius: 4, maxBarThickness: 28 },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, padding: 16, font: legendLabelFont } },
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: gridColor }, beginAtZero: true, ticks: { precision: 0 } },
+        },
+      },
+    }));
+  }
+}
+
+// =========================================================
 // INIT — detect which page we're on by its DOM, then render
 // =========================================================
 async function init() {
   const isHome = document.getElementById('recent-matches');
   const isMatchesPage = document.getElementById('matches-tbody');
+  const isStatsPage = document.getElementById('chart-winrate');
 
   try {
     const matches = await fetchMatches();
@@ -275,6 +503,10 @@ async function init() {
     if (isMatchesPage) {
       setupFilterBar();
       renderMatchesTable();
+    }
+    if (isStatsPage) {
+      renderStreakStats(matches);
+      renderCharts(matches);
     }
   } catch (err) {
     console.error('FC Master: failed to load match data', err);
@@ -290,6 +522,10 @@ async function init() {
     if (isMatchesPage) {
       document.getElementById('matches-tbody').innerHTML =
         `<tr><td colspan="6">${errorState(msg)}</td></tr>`;
+    }
+    if (isStatsPage) {
+      renderStreakStats([]);
+      ['chart-winrate', 'chart-breakdown', 'chart-goals'].forEach(id => showChartMessage(id, msg));
     }
   }
 }

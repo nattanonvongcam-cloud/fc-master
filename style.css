@@ -345,6 +345,7 @@ section { padding: 44px 0; }
 }
 .stat-card__value--win { color: var(--win); }
 .stat-card__value--loss { color: var(--loss); }
+.stat-card__value--draw { color: var(--draw); }
 .stat-card__sub {
   font-family: var(--font-body);
   font-size: 12px;
@@ -603,6 +604,49 @@ tbody tr:hover { background: rgba(91, 157, 255, 0.04); }
 }
 .skel {
   color: var(--text-faint);
+}
+
+/* =========================================================
+   Charts (stats page)
+   ========================================================= */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 16px;
+}
+.chart-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.chart-panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.chart-panel__title {
+  font-family: var(--font-eyebrow);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+.chart-panel__sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+.chart-canvas-wrap {
+  position: relative;
+  height: 240px;
+}
+.chart-canvas-wrap--wide { height: 280px; }
+.chart-canvas-wrap .state-message { padding: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
+
+@media (max-width: 920px) {
+  .charts-grid { grid-template-columns: 1fr; }
 }
 
 /* =========================================================

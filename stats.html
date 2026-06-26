@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics — FC Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <img class="brand-mark" src="https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=80&amp;quality=lossless" alt="FC Master logo">
+      <div class="brand-text">
+        <span class="brand-name">FC MASTER</span>
+        <span class="brand-sub">Bluelock Rivals Community</span>
+      </div>
+    </a>
+    <nav class="nav">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="matches.html" class="nav-link">Matches</a>
+      <a href="stats.html" class="nav-link is-active">Stats</a>
+      <span class="nav-link nav-link--soon">Roster <span class="soon-tag">Soon</span></span>
+      <span class="nav-link nav-link--soon">Rankings <span class="soon-tag">Soon</span></span>
+    </nav>
+    <a href="#" class="btn btn-primary">
+      <!-- discord icon -->
+      Join Discord
+    </a>
+  </div>
+</header>
+
+<main>
+  <section class="container" style="padding-bottom: 0;">
+    <div class="section-head">
+      <span class="eyebrow">Performance Overview</span>
+    </div>
+    <div class="stat-grid" id="streak-stats">
+      <div class="panel stat-card">
+        <span class="stat-card__label">Current Streak</span>
+        <span class="stat-card__value skel" id="stat-current-streak">&mdash;</span>
+        <span class="stat-card__sub">Consecutive same result</span>
+      </div>
+      <div class="panel stat-card">
+        <span class="stat-card__label">Best Win Streak</span>
+        <span class="stat-card__value stat-card__value--win skel" id="stat-best-streak">&mdash;</span>
+        <span class="stat-card__sub">Longest run of wins</span>
+      </div>
+      <div class="panel stat-card">
+        <span class="stat-card__label">Avg. Goals For</span>
+        <span class="stat-card__value stat-card__value--win skel" id="stat-avg-for">&mdash;</span>
+        <span class="stat-card__sub">Per match</span>
+      </div>
+      <div class="panel stat-card">
+        <span class="stat-card__label">Avg. Goals Against</span>
+        <span class="stat-card__value stat-card__value--loss skel" id="stat-avg-against">&mdash;</span>
+        <span class="stat-card__sub">Per match</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="charts-grid">
+      <div class="panel chart-panel">
+        <div class="chart-panel__head">
+          <span class="chart-panel__title">Win Rate Over Time</span>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="chart-winrate"></canvas>
+        </div>
+      </div>
+      <div class="panel chart-panel">
+        <div class="chart-panel__head">
+          <span class="chart-panel__title">Result Breakdown</span>
+        </div>
+        <div class="chart-canvas-wrap chart-canvas-wrap--donut">
+          <canvas id="chart-breakdown"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="panel chart-panel">
+      <div class="chart-panel__head">
+        <span class="chart-panel__title">Goals For vs. Goals Against</span>
+        <span class="chart-panel__sub">Last 10 matches</span>
+      </div>
+      <div class="chart-canvas-wrap chart-canvas-wrap--wide">
+        <canvas id="chart-goals"></canvas>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>FC Master &middot; Bluelock Rivals Community</p>
+    <p>500+ Members on Discord</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="script.js"></script>
+</body>
+</html>
