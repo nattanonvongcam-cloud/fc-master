@@ -72,7 +72,7 @@ function rowsToMatches(rows) {
     tournament: headers.indexOf('tournament'),
     mvp: headers.indexOf('mvp'),
     teamId: headers.indexOf('teamid'),
-    logo: headers.indexOf('logo'),
+    opponentLogo: headers.indexOf('opponentlogo'),
   };
 
   const matches = [];
@@ -89,7 +89,7 @@ function rowsToMatches(rows) {
     if (isNaN(scoreFor) || isNaN(scoreAgainst)) continue;
 
     const opponent = (cells[idx.opponent] || '').trim() || 'Unknown';
-    const logo = (idx.logo >= 0 ? (cells[idx.logo] || '') : '').trim() || OPPONENT_LOGOS[opponent] || '';
+    const opponentLogo = (idx.opponentLogo >= 0 ? (cells[idx.opponentLogo] || '') : '').trim();
 
     let result = 'DRAW';
     if (scoreFor > scoreAgainst) result = 'WIN';
@@ -99,7 +99,7 @@ function rowsToMatches(rows) {
       date: dateObj,
       dateRaw,
       opponent,
-      logo,
+      opponentLogo,
       scoreFor,
       scoreAgainst,
       tournament: (cells[idx.tournament] || '').trim() || 'Friendly',
@@ -261,7 +261,7 @@ function renderHome(matches) {
       latestEl.innerHTML = emptyState('No matches yet. Add a row to the Matches sheet to see it here.');
     } else {
       const m = matches[0];
-      const opponentLogo = m.logo || OPPONENT_LOGOS[m.opponent];
+      const opponentLogo = m.opponentLogo || OPPONENT_LOGOS[m.opponent] || '';
       const opponentCrest = opponentLogo
         ? `<img class="team-crest" src="${escapeHTML(opponentLogo)}" alt="${escapeHTML(m.opponent)} logo">`
         : `<div class="team-crest"></div>`;
