@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="page-player">
 
 <header class="site-header">
   <div class="container">
@@ -20,6 +20,10 @@
         <span class="brand-sub">Bluelock Rivals Community</span>
       </div>
     </a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true">
+    <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </label>
     <nav class="nav">
       <a href="index.html" class="nav-link">Home</a>
       <a href="matches.html" class="nav-link">Matches</a>
@@ -28,33 +32,53 @@
       <a href="teams.html" class="nav-link">Teams</a>
       <a href="rankings.html" class="nav-link">Rankings</a>
     </nav>
-    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">
-      <!-- discord icon -->
-      Join Discord
-    </a>
+    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">Join Discord</a>
   </div>
 </header>
 
-<main>
-  <section class="container" style="padding-bottom: 0;">
-    <div class="section-head">
-      <span class="eyebrow">Player Profile</span>
-      <a href="roster.html" class="meta-link">&larr; Back to Roster</a>
-    </div>
-    <div class="panel" id="player-profile">
-      <div class="state-message">Loading player&hellip;</div>
+<section class="page-banner">
+  <div class="container page-banner__inner">
+    <p class="page-banner__tag">Player Card</p>
+    <h1 class="page-banner__title">Player Profile</h1>
+    <p class="page-banner__desc">Individual stats, role, and MVP match history.</p>
+  </div>
+</section>
+
+<main class="site-main">
+  <section class="page-section page-section--tight-top">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Profile</span>
+        <a href="roster.html" class="meta-link">&larr; Back to Roster</a>
+      </div>
+      <div class="panel panel--profile" id="player-profile">
+        <div class="state-message">Loading player&hellip;</div>
+      </div>
     </div>
   </section>
 
-  <section class="container">
-    <div class="stat-grid" id="player-stat-grid"></div>
+  <section class="page-section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-head__text">
+          <span class="eyebrow">Career Stats</span>
+          <p class="section-desc">Goals, assists, and MVP awards.</p>
+        </div>
+      </div>
+      <div class="stat-grid" id="player-stat-grid"></div>
+    </div>
   </section>
 
-  <section class="container">
-    <div class="section-head">
-      <span class="eyebrow">MVP Matches</span>
+  <section class="page-section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-head__text">
+          <span class="eyebrow">MVP Matches</span>
+          <p class="section-desc">Matches where this player earned MVP.</p>
+        </div>
+      </div>
+      <div class="match-grid" id="player-mvp-matches"></div>
     </div>
-    <div class="match-grid" id="player-mvp-matches"></div>
   </section>
 </main>
 

@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="page-rankings">
 
 <header class="site-header">
   <div class="container">
@@ -20,6 +20,10 @@
         <span class="brand-sub">Bluelock Rivals Community</span>
       </div>
     </a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true">
+    <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </label>
     <nav class="nav">
       <a href="index.html" class="nav-link">Home</a>
       <a href="matches.html" class="nav-link">Matches</a>
@@ -28,54 +32,58 @@
       <a href="teams.html" class="nav-link">Teams</a>
       <a href="rankings.html" class="nav-link is-active">Rankings</a>
     </nav>
-    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">
-      Join Discord
-    </a>
+    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">Join Discord</a>
   </div>
 </header>
 
-<main>
-  <section class="container" style="padding-bottom: 0;">
-    <div class="section-head">
-      <span class="eyebrow">Standings</span>
-    </div>
+<section class="page-banner">
+  <div class="container page-banner__inner">
+    <p class="page-banner__tag">League Table</p>
+    <h1 class="page-banner__title">Standings</h1>
+    <p class="page-banner__desc">Team rankings sorted by points and goal difference.</p>
+  </div>
+</section>
 
-    <div id="rankings-root" class="rankings-shell">
-      <div class="rankings-legend">
-        <div class="panel legend-card">
-          <span class="legend-card__label">Points</span>
-          <span class="legend-card__value">Win = 3 pts</span>
-          <span class="legend-card__value">Draw = 1 pt</span>
-          <span class="legend-card__value">Loss = 0 pts</span>
+<main class="site-main">
+  <section class="page-section page-section--tight-top">
+    <div class="container">
+      <div id="rankings-root" class="rankings-shell">
+        <div class="rankings-legend">
+          <div class="panel legend-card">
+            <span class="legend-card__label">Points</span>
+            <span class="legend-card__value">Win = 3 pts</span>
+            <span class="legend-card__value">Draw = 1 pt</span>
+            <span class="legend-card__value">Loss = 0 pts</span>
+          </div>
+          <div class="panel legend-card">
+            <span class="legend-card__label">Stats</span>
+            <span class="legend-card__value">MP = matches played</span>
+            <span class="legend-card__value">GD = goals difference</span>
+          </div>
+          <div class="panel legend-card">
+            <span class="legend-card__label">Sort Order</span>
+            <span class="legend-card__value">Points</span>
+            <span class="legend-card__value">Goal difference</span>
+          </div>
         </div>
-        <div class="panel legend-card">
-          <span class="legend-card__label">Stats</span>
-          <span class="legend-card__value">MP = matches played</span>
-          <span class="legend-card__value">GD = goals difference</span>
-        </div>
-        <div class="panel legend-card">
-          <span class="legend-card__label">Sort Order</span>
-          <span class="legend-card__value">Points</span>
-          <span class="legend-card__value">Goal difference</span>
-        </div>
-      </div>
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Team</th>
-              <th>MP</th>
-              <th>W</th>
-              <th>D</th>
-              <th>L</th>
-              <th>GD</th>
-              <th>PTS</th>
-            </tr>
-          </thead>
-          <tbody id="rankings-tbody"></tbody>
-        </table>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Team</th>
+                <th>MP</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>GD</th>
+                <th>PTS</th>
+              </tr>
+            </thead>
+            <tbody id="rankings-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>

@@ -20,6 +20,10 @@
         <span class="brand-sub">Bluelock Rivals Community</span>
       </div>
     </a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true">
+    <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </label>
     <nav class="nav">
       <a href="index.html" class="nav-link is-active">Home</a>
       <a href="matches.html" class="nav-link">Matches</a>
@@ -28,9 +32,7 @@
       <a href="teams.html" class="nav-link">Teams</a>
       <a href="rankings.html" class="nav-link">Rankings</a>
     </nav>
-    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">
-      Join Discord
-    </a>
+    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">Join Discord</a>
   </div>
 </header>
 
@@ -99,22 +101,17 @@
       </div>
     </aside>
   </div>
-
-  <div class="hero-scroll" aria-hidden="true">
-    <span class="hero-scroll__line"></span>
-  </div>
 </section>
 
-<main class="home-main">
-  <section class="home-stats">
+<main class="site-main">
+  <section class="page-section home-stats">
     <div class="container">
-      <div class="section-head section-head--home">
+      <div class="section-head">
         <div class="section-head__text">
           <span class="eyebrow">Org Stats</span>
           <p class="section-desc">Live record pulled from every recorded scrim and tournament.</p>
         </div>
       </div>
-
       <div class="stat-bento">
         <div class="panel stat-card stat-card--featured">
           <div class="stat-card__accent stat-card__accent--blue" aria-hidden="true"></div>
@@ -125,7 +122,6 @@
           <span class="stat-card__value stat-card__value--hero skel" id="stat-winrate">&mdash;</span>
           <span class="stat-card__sub"><span id="stat-draws">&mdash;</span> draws on record</span>
         </div>
-
         <div class="panel stat-card">
           <div class="stat-card__accent stat-card__accent--neutral" aria-hidden="true"></div>
           <div class="stat-card__head">
@@ -135,7 +131,6 @@
           <span class="stat-card__value skel" id="stat-total">&mdash;</span>
           <span class="stat-card__sub">All recorded scrims &amp; tournaments</span>
         </div>
-
         <div class="panel stat-card stat-card--win">
           <div class="stat-card__accent stat-card__accent--win" aria-hidden="true"></div>
           <div class="stat-card__head">
@@ -145,7 +140,6 @@
           <span class="stat-card__value stat-card__value--win skel" id="stat-wins">&mdash;</span>
           <span class="stat-card__sub">Matches won</span>
         </div>
-
         <div class="panel stat-card stat-card--loss">
           <div class="stat-card__accent stat-card__accent--loss" aria-hidden="true"></div>
           <div class="stat-card__head">
@@ -159,9 +153,9 @@
     </div>
   </section>
 
-  <section class="home-latest">
+  <section class="page-section">
     <div class="container">
-      <div class="section-head section-head--home">
+      <div class="section-head">
         <div class="section-head__text">
           <span class="eyebrow">Latest Match</span>
           <p class="section-desc">Most recent result from the sheet.</p>
@@ -174,9 +168,9 @@
     </div>
   </section>
 
-  <section class="home-recent">
+  <section class="page-section">
     <div class="container">
-      <div class="section-head section-head--home">
+      <div class="section-head">
         <div class="section-head__text">
           <span class="eyebrow">Recent Matches</span>
           <p class="section-desc">Last four results at a glance.</p>

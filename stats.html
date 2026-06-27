@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="page-stats">
 
 <header class="site-header">
   <div class="container">
@@ -20,6 +20,10 @@
         <span class="brand-sub">Bluelock Rivals Community</span>
       </div>
     </a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true">
+    <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </label>
     <nav class="nav">
       <a href="index.html" class="nav-link">Home</a>
       <a href="matches.html" class="nav-link">Matches</a>
@@ -28,71 +32,95 @@
       <a href="teams.html" class="nav-link">Teams</a>
       <a href="rankings.html" class="nav-link">Rankings</a>
     </nav>
-    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">
-      <!-- discord icon -->
-      Join Discord
-    </a>
+    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">Join Discord</a>
   </div>
 </header>
 
-<main>
-  <section class="container" style="padding-bottom: 0;">
-    <div class="section-head">
-      <span class="eyebrow">Performance Overview</span>
-    </div>
-    <div class="stat-grid" id="streak-stats">
-      <div class="panel stat-card">
-        <span class="stat-card__label">Current Streak</span>
-        <span class="stat-card__value skel" id="stat-current-streak">&mdash;</span>
-        <span class="stat-card__sub">Consecutive same result</span>
-      </div>
-      <div class="panel stat-card">
-        <span class="stat-card__label">Best Win Streak</span>
-        <span class="stat-card__value stat-card__value--win skel" id="stat-best-streak">&mdash;</span>
-        <span class="stat-card__sub">Longest run of wins</span>
-      </div>
-      <div class="panel stat-card">
-        <span class="stat-card__label">Avg. Goals For</span>
-        <span class="stat-card__value stat-card__value--win skel" id="stat-avg-for">&mdash;</span>
-        <span class="stat-card__sub">Per match</span>
-      </div>
-      <div class="panel stat-card">
-        <span class="stat-card__label">Avg. Goals Against</span>
-        <span class="stat-card__value stat-card__value--loss skel" id="stat-avg-against">&mdash;</span>
-        <span class="stat-card__sub">Per match</span>
-      </div>
-    </div>
-  </section>
+<section class="page-banner">
+  <div class="container page-banner__inner">
+    <p class="page-banner__tag">Analytics</p>
+    <h1 class="page-banner__title">Statistics</h1>
+    <p class="page-banner__desc">Streaks, averages, and visual breakdowns of org performance.</p>
+  </div>
+</section>
 
-  <section class="container">
-    <div class="charts-grid">
-      <div class="panel chart-panel">
-        <div class="chart-panel__head">
-          <span class="chart-panel__title">Win Rate Over Time</span>
-        </div>
-        <div class="chart-canvas-wrap">
-          <canvas id="chart-winrate"></canvas>
+<main class="site-main">
+  <section class="page-section page-section--tight-top">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-head__text">
+          <span class="eyebrow">Performance Overview</span>
+          <p class="section-desc">Key metrics computed from match history.</p>
         </div>
       </div>
-      <div class="panel chart-panel">
-        <div class="chart-panel__head">
-          <span class="chart-panel__title">Result Breakdown</span>
+      <div class="stat-grid" id="streak-stats">
+        <div class="panel stat-card">
+          <div class="stat-card__accent stat-card__accent--draw" aria-hidden="true"></div>
+          <span class="stat-card__label">Current Streak</span>
+          <span class="stat-card__value skel" id="stat-current-streak">&mdash;</span>
+          <span class="stat-card__sub">Consecutive same result</span>
         </div>
-        <div class="chart-canvas-wrap chart-canvas-wrap--donut">
-          <canvas id="chart-breakdown"></canvas>
+        <div class="panel stat-card stat-card--win">
+          <div class="stat-card__accent stat-card__accent--win" aria-hidden="true"></div>
+          <span class="stat-card__label">Best Win Streak</span>
+          <span class="stat-card__value stat-card__value--win skel" id="stat-best-streak">&mdash;</span>
+          <span class="stat-card__sub">Longest run of wins</span>
+        </div>
+        <div class="panel stat-card stat-card--win">
+          <div class="stat-card__accent stat-card__accent--win" aria-hidden="true"></div>
+          <span class="stat-card__label">Avg. Goals For</span>
+          <span class="stat-card__value stat-card__value--win skel" id="stat-avg-for">&mdash;</span>
+          <span class="stat-card__sub">Per match</span>
+        </div>
+        <div class="panel stat-card stat-card--loss">
+          <div class="stat-card__accent stat-card__accent--loss" aria-hidden="true"></div>
+          <span class="stat-card__label">Avg. Goals Against</span>
+          <span class="stat-card__value stat-card__value--loss skel" id="stat-avg-against">&mdash;</span>
+          <span class="stat-card__sub">Per match</span>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="container">
-    <div class="panel chart-panel">
-      <div class="chart-panel__head">
-        <span class="chart-panel__title">Goals For vs. Goals Against</span>
-        <span class="chart-panel__sub">Last 10 matches</span>
+  <section class="page-section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-head__text">
+          <span class="eyebrow">Visual Breakdown</span>
+          <p class="section-desc">Trends and distributions across all recorded matches.</p>
+        </div>
       </div>
-      <div class="chart-canvas-wrap chart-canvas-wrap--wide">
-        <canvas id="chart-goals"></canvas>
+      <div class="charts-grid">
+        <div class="panel chart-panel">
+          <div class="chart-panel__head">
+            <span class="chart-panel__title">Win Rate Over Time</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chart-winrate"></canvas>
+          </div>
+        </div>
+        <div class="panel chart-panel">
+          <div class="chart-panel__head">
+            <span class="chart-panel__title">Result Breakdown</span>
+          </div>
+          <div class="chart-canvas-wrap chart-canvas-wrap--donut">
+            <canvas id="chart-breakdown"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="container">
+      <div class="panel chart-panel">
+        <div class="chart-panel__head">
+          <span class="chart-panel__title">Goals For vs. Goals Against</span>
+          <span class="chart-panel__sub">Last 10 matches</span>
+        </div>
+        <div class="chart-canvas-wrap chart-canvas-wrap--wide">
+          <canvas id="chart-goals"></canvas>
+        </div>
       </div>
     </div>
   </section>

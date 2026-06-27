@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="page-matches">
 
 <header class="site-header">
   <div class="container">
@@ -20,6 +20,10 @@
         <span class="brand-sub">Bluelock Rivals Community</span>
       </div>
     </a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true">
+    <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </label>
     <nav class="nav">
       <a href="index.html" class="nav-link">Home</a>
       <a href="matches.html" class="nav-link is-active">Matches</a>
@@ -28,43 +32,46 @@
       <a href="teams.html" class="nav-link">Teams</a>
       <a href="rankings.html" class="nav-link">Rankings</a>
     </nav>
-    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">
-      <!-- discord icon -->
-      Join Discord
-    </a>
+    <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">Join Discord</a>
   </div>
 </header>
 
-<main>
-  <section class="container" style="padding-bottom: 0;">
-    <div class="section-head">
-      <span class="eyebrow">Match History</span>
-    </div>
+<section class="page-banner">
+  <div class="container page-banner__inner">
+    <p class="page-banner__tag">Competitive Record</p>
+    <h1 class="page-banner__title">Match History</h1>
+    <p class="page-banner__desc">Every scrim and tournament result, filterable by outcome.</p>
+  </div>
+</section>
 
-    <div class="filter-bar">
-      <button class="filter-btn is-active" data-filter="ALL">All Results</button>
-      <button class="filter-btn" data-filter="WIN">Wins</button>
-      <button class="filter-btn" data-filter="LOSS">Losses</button>
-      <button class="filter-btn" data-filter="DRAW">Draws</button>
-      <span class="filter-count" id="filter-count">Loading&hellip;</span>
-    </div>
+<main class="site-main">
+  <section class="page-section page-section--tight-top">
+    <div class="container">
+      <div class="filter-bar">
+        <button class="filter-btn is-active" data-filter="ALL">All Results</button>
+        <button class="filter-btn" data-filter="WIN">Wins</button>
+        <button class="filter-btn" data-filter="LOSS">Losses</button>
+        <button class="filter-btn" data-filter="DRAW">Draws</button>
+        <span class="filter-count" id="filter-count">Loading&hellip;</span>
+      </div>
 
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Opponent</th>
-            <th>Score</th>
-            <th>Result</th>
-            <th>Tournament</th>
-            <th>MVP</th>
-          </tr>
-        </thead>
-        <tbody id="matches-tbody">
-          <tr><td colspan="6"><div class="state-message">Loading match history&hellip;</div></td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Opponent</th>
+              <th>Score</th>
+              <th>Result</th>
+              <th>Tournament</th>
+              <th>MVP</th>
+            </tr>
+          </thead>
+          <tbody id="matches-tbody">
+            <tr><td colspan="6"><div class="state-message">Loading match history&hellip;</div></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 </main>
