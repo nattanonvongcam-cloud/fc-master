@@ -811,6 +811,14 @@ function renderStreakStats(matches) {
   setText('stat-best-streak', hasMatches ? `${streaks.best}W` : '—');
   setText('stat-avg-for', hasMatches ? avgs.avgFor.toFixed(1) : '—');
   setText('stat-avg-against', hasMatches ? avgs.avgAgainst.toFixed(1) : '—');
+
+  const statCards = document.querySelectorAll('#streak-stats .stat-card');
+  statCards.forEach((card, i) => {
+    card.classList.remove('stat-card--animate');
+    void card.offsetWidth;
+    card.style.animationDelay = `${i * 0.07}s`;
+    card.classList.add('stat-card--animate');
+  });
 }
 
 // Cumulative win rate after each match, oldest to newest.

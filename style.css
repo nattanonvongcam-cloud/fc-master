@@ -2289,3 +2289,18 @@ tr[style*="--home-c"] td {
 .footer-credit__name {
   color: var(--accent-blue-bright);
 }
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.stat-card--animate {
+  animation: slideInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
