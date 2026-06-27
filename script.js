@@ -467,6 +467,7 @@ function renderHome(allMatches, teams) {
               <span class="match-card-mini__opponent">${escapeHTML(m.homeTeam)} vs ${escapeHTML(m.awayTeam)}</span>
             </div>
             <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
+            ${badgeFor(m.result)}
             <span class="match-card-mini__date">${formatDate(m.date)}</span>
           </div>
         `;
@@ -516,8 +517,9 @@ function errorState(msg) {
 // =========================================================
 let ALL_MATCHES = [];
 let ALL_TEAMS = [];
-let ACTIVE_FILTER = null;
+let ACTIVE_FILTER = 'ALL';
 let ACTIVE_TEAM_FILTER = null;
+let VIEW_MODE = 'table';
 
 function teamFilterKeys(team) {
   const keys = new Set();
@@ -536,9 +538,9 @@ function matchInvolvesTeam(match, team) {
 }
 
 function getTeamFilteredMatches() {
-  if (!ACTIVE_TEAM_FILTER) return [];
+  if (!ACTIVE_TEAM_FILTER) return ALL_MATCHES;
   const team = ALL_TEAMS.find(t => (t.teamId || '').trim() === ACTIVE_TEAM_FILTER);
-  if (!team) return ALL_MATCHES;
+  if (!team) return [];
   return ALL_MATCHES.filter(m => matchInvolvesTeam(m, team));
 }
 
@@ -552,6 +554,7 @@ function renderTeamFilterBar() {
   }
 
   bar.innerHTML = [
+    `<button type="button" class="filter-btn filter-btn--team is-active" data-team-filter="">All Teams</button>`,
     ...ALL_TEAMS.map(team => {
       const id = (team.teamId || '').trim();
       return `<button type="button" class="filter-btn filter-btn--team" data-team-filter="${escapeHTML(id)}">${escapeHTML(team.name)}</button>`;
@@ -591,12 +594,6 @@ function renderMatchesTable() {
   const countEl = document.getElementById('filter-count');
   if (!tbody) return;
 
-  if (!ACTIVE_TEAM_FILTER || !ACTIVE_FILTER) {
-    tbody.innerHTML = `<tr><td colspan="6">${emptyState('Please select a team and a result to view matches.')}</td></tr>`;
-    if (countEl) countEl.textContent = '';
-    return;
-  }
-
   const teamFiltered = getTeamFilteredMatches();
   const filtered = ACTIVE_FILTER === 'ALL'
     ? teamFiltered
@@ -605,6 +602,61 @@ function renderMatchesTable() {
   if (countEl) {
     countEl.textContent = `Showing ${filtered.length} of ${ALL_MATCHES.length} matches`;
   }
+
+  if (VIEW_MODE === 'card') {
+    const tableWrap = document.querySelector('.table-wrapper');
+    let cardGrid = document.getElementById('matches-cards-grid');
+    if (!cardGrid) {
+      cardGrid = document.createElement('div');
+      cardGrid.id = 'matches-cards-grid';
+      cardGrid.className = 'match-cards-grid';
+      tableWrap.parentElement.insertBefore(cardGrid, tableWrap);
+    }
+    tableWrap.style.display = 'none';
+    cardGrid.style.display = 'grid';
+
+    if (filtered.length === 0) {
+      cardGrid.innerHTML = emptyState('No matches found for this filter.');
+      return;
+    }
+    cardGrid.innerHTML = filtered.map((m, i) => {
+      const { result } = getDisplayResultAndOpponent(m);
+      const homeLogo = m.homeLogo
+        ? `<img class="match-card-vs__logo" src="${escapeHTML(m.homeLogo)}" alt="${escapeHTML(m.homeTeam)}">`
+        : `<div class="match-card-vs__logo match-card-vs__logo--fallback">${escapeHTML(initials(m.homeTeam))}</div>`;
+      const awayLogo = m.awayLogo
+        ? `<img class="match-card-vs__logo" src="${escapeHTML(m.awayLogo)}" alt="${escapeHTML(m.awayTeam)}">`
+        : `<div class="match-card-vs__logo match-card-vs__logo--fallback">${escapeHTML(initials(m.awayTeam))}</div>`;
+      return `
+        <div class="panel match-card-vs animate-in" style="animation-delay:${Math.min(i * 0.04, 0.3)}s">
+          <div class="match-card-vs__teams">
+            <div class="match-card-vs__side">
+              ${homeLogo}
+              <span class="match-card-vs__team-name">${escapeHTML(m.homeTeam)}</span>
+            </div>
+            <div class="match-card-vs__center">
+              <span class="match-card-vs__score">${m.scoreFor} – ${m.scoreAgainst}</span>
+              ${badgeFor(result)}
+            </div>
+            <div class="match-card-vs__side">
+              ${awayLogo}
+              <span class="match-card-vs__team-name">${escapeHTML(m.awayTeam)}</span>
+            </div>
+          </div>
+          <div class="match-card-vs__footer">
+            <span>${formatDate(m.date)}</span>
+            <span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+    return;
+  }
+
+  const tableWrap = document.querySelector('.table-wrapper');
+  if (tableWrap) tableWrap.style.display = '';
+  const cardGrid = document.getElementById('matches-cards-grid');
+  if (cardGrid) cardGrid.style.display = 'none';
 
   if (filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan="6">${emptyState('No matches found for this filter.')}</td></tr>`;
@@ -624,6 +676,20 @@ function renderMatchesTable() {
     </tr>
   `;
   }).join('');
+}
+
+function setupViewToggle() {
+  const toggle = document.getElementById('view-toggle');
+  if (!toggle) return;
+  toggle.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-view]');
+    if (!btn) return;
+    VIEW_MODE = btn.dataset.view;
+    toggle.querySelectorAll('[data-view]').forEach(b =>
+      b.classList.toggle('is-active', b === btn)
+    );
+    renderMatchesTable();
+  });
 }
 
 function setupFilterBar() {
@@ -913,6 +979,31 @@ function renderRoster(players, teams) {
     return;
   }
 
+  const top = players[0];
+  if (top && top.goals > 0) {
+    const topTeam = findTeamForPlayer(teams, top.team);
+    const colorRgb = teamColorRgb(topTeam);
+    const crest = top.avatar
+      ? `<img class="feature-card__crest" src="${escapeHTML(top.avatar)}" alt="${escapeHTML(top.name)}">`
+      : `<div class="feature-card__crest feature-card__crest--fallback">${escapeHTML(initials(top.name))}</div>`;
+    const heroCard = document.createElement('div');
+    heroCard.className = 'panel feature-card';
+    heroCard.style.cssText = `--team-c: ${colorRgb}; margin-bottom: 22px;`;
+    heroCard.innerHTML = `
+      <div class="feature-card__accent"></div>
+      <div class="feature-card__eyebrow">⚽ Top Scorer</div>
+      <div class="feature-card__main">
+        ${crest}
+        <div class="feature-card__info">
+          <span class="feature-card__name">${escapeHTML(top.name)}</span>
+          <span class="feature-card__value">${top.goals} Goals</span>
+          <span class="feature-card__sub">${top.assists} Assists · ${top.mvps} MVPs</span>
+        </div>
+      </div>
+    `;
+    grid.parentElement.insertBefore(heroCard, grid);
+  }
+
   grid.innerHTML = players.map((p, i) => `
     <a class="panel player-card animate-in" href="${playerLink(p)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(findTeamForPlayer(teams, p.team))}">
       ${avatarMarkup(p, 'player-card__avatar')}
@@ -1028,11 +1119,46 @@ function computeStandings(teams, matches) {
   });
 }
 
+function renderRankingsHero(standings, teams) {
+  const root = document.getElementById('rankings-root');
+  if (!root || standings.length === 0) return;
+  const leader = standings[0];
+  if (!leader || leader.mp === 0) return;
+
+  const leaderTeam = teams.find(t =>
+    normalizeTeamValue(t.teamId) === normalizeTeamValue(leader.teamId) ||
+    normalizeTeamValue(t.name) === normalizeTeamValue(leader.name)
+  );
+  const colorRgb = teamColorRgb(leaderTeam);
+  const winRate = Math.round((leader.w / leader.mp) * 100);
+  const crest = leader.logo
+    ? `<img class="feature-card__crest" src="${escapeHTML(leader.logo)}" alt="${escapeHTML(leader.name)}">`
+    : `<div class="feature-card__crest feature-card__crest--fallback">${escapeHTML(initials(leader.name))}</div>`;
+
+  const card = document.createElement('div');
+  card.className = 'panel feature-card';
+  card.style.cssText = `--team-c: ${colorRgb};`;
+  card.innerHTML = `
+    <div class="feature-card__accent"></div>
+    <div class="feature-card__eyebrow">🏆 Current Leader</div>
+    <div class="feature-card__main">
+      ${crest}
+      <div class="feature-card__info">
+        <span class="feature-card__name">${escapeHTML(leader.name)}</span>
+        <span class="feature-card__value">${winRate}% Win Rate</span>
+        <span class="feature-card__sub">${leader.w}W ${leader.d}D ${leader.l}L · ${leader.pts} pts</span>
+      </div>
+    </div>
+  `;
+  root.insertBefore(card, root.firstChild);
+}
+
 function renderRankings(teams, matches) {
   const tbody = document.getElementById('rankings-tbody');
   if (!tbody) return;
 
   const standings = computeStandings(teams, matches);
+  renderRankingsHero(standings, teams);
   if (standings.length === 0) {
     tbody.innerHTML = `<tr><td colspan="8">${emptyState('No standings yet. Add teams and matches to see the table.')}</td></tr>`;
     return;
@@ -1152,6 +1278,19 @@ function renderPlayerProfile(players, matches, teams) {
 // =========================================================
 // TEAM PROFILE PAGE
 // =========================================================
+function applyTeamTheme(team) {
+  const rgb = teamColorRgb(team);
+  const root = document.documentElement;
+  root.style.setProperty('--accent-blue',        `rgb(${rgb})`);
+  root.style.setProperty('--accent-blue-bright', `rgb(${rgb})`);
+  root.style.setProperty('--accent-blue-deep',   `rgb(${rgb} / 0.7)`);
+  root.style.setProperty('--accent-glow',        `rgb(${rgb} / 0.55)`);
+  root.style.setProperty('--accent-glow-soft',   `rgb(${rgb} / 0.18)`);
+  root.style.setProperty('--accent-glow-strong', `rgb(${rgb} / 0.35)`);
+  root.style.setProperty('--border-line',        `rgb(${rgb} / 0.1)`);
+  root.style.setProperty('--border-line-strong', `rgb(${rgb} / 0.28)`);
+}
+
 function renderTeamProfile(teams, players, matches) {
   const wrap = document.getElementById('team-profile');
   const statGrid = document.getElementById('team-stat-grid');
@@ -1172,6 +1311,14 @@ function renderTeamProfile(teams, players, matches) {
   }
 
   document.title = `${team.name}`;
+  applyTeamTheme(team);
+  const banner = document.querySelector('.page-banner');
+  if (banner && team.logo) {
+    const wm = document.createElement('div');
+    wm.className = 'page-banner__watermark';
+    wm.style.backgroundImage = `url('${escapeHTML(team.logo)}')`;
+    banner.appendChild(wm);
+  }
 
   wrap.innerHTML = `
     <div class="player-profile__header">
@@ -1404,6 +1551,7 @@ async function init() {
       renderTeamFilterBar();
       setupTeamFilterBar(() => renderMatchesTable());
       setupFilterBar();
+      setupViewToggle();
       renderMatchesTable();
     }
     if (isStatsPage) {
@@ -1434,7 +1582,6 @@ async function init() {
       if (teamBar) teamBar.innerHTML = '<span class="filter-count">Couldn\'t load teams</span>';
     }
     if (isStatsPage) {
-      renderStatsPage();
       ['chart-winrate', 'chart-breakdown', 'chart-goals'].forEach(id => showChartMessage(id, msg));
       const teamBar = document.getElementById('team-filter-bar');
       if (teamBar) teamBar.innerHTML = '<span class="filter-count">Couldn\'t load teams</span>';
