@@ -557,7 +557,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background:
     linear-gradient(to bottom, transparent 0%, transparent 55%, var(--bg-void) 100%),
     linear-gradient(105deg, rgba(5, 8, 16, 0.94) 0%, rgba(5, 8, 16, 0.7) 42%, rgba(5, 8, 16, 0.9) 100%),
-    url('https://i.ibb.co/B2PHL9ym/FAmjm-BYWYAAL4sd.jpg') center / cover no-repeat;
+    url('https://i.ibb.co/Zp1FXZD6/IMG-5466.png') center / cover no-repeat;
 }
 .hero-bg__grid {
   position: absolute;
@@ -2069,4 +2069,81 @@ body.page-exiting {
   #bottom-nav { display: flex; }
   .site-main, .hero { padding-bottom: 90px; }
   .site-footer { margin-bottom: 90px; }
+}
+
+/* ===== LOGO WATERMARKS ===== */
+
+/* Latest Match card watermarks */
+.latest-match {
+  position: relative;
+  overflow: hidden;
+}
+.match-wm {
+  position: absolute;
+  top: 50%;
+  width: 160px;
+  height: 160px;
+  transform: translateY(-50%);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.08;
+  filter: saturate(0) blur(0.5px);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.match-wm--home {
+  left: -16px;
+}
+.match-wm--away {
+  right: -16px;
+}
+
+/* Player card watermark */
+.player-card {
+  position: relative;
+  overflow: hidden;
+}
+.player-wm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.07;
+  filter: saturate(0) blur(0.5px);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.player-card:hover .player-wm {
+  opacity: 0.12;
+}
+
+/* Rankings row watermark */
+.rankings-rank {
+  position: relative;
+  overflow: visible;
+}
+.rankings-wm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 56px;
+  height: 56px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.08;
+  filter: saturate(0) blur(0.5px);
+  pointer-events: none;
+  z-index: 0;
+}
+.rankings-rank > *:not(.rankings-wm) {
+  position: relative;
+  z-index: 1;
 }

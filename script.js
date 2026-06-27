@@ -433,6 +433,8 @@ function renderHome(allMatches, teams) {
 
       latestEl.innerHTML = `
         <div class="latest-match">
+          ${m.homeLogo ? `<div class="match-wm match-wm--home" style="background-image:url('${escapeHTML(m.homeLogo)}')"></div>` : ''}
+          ${m.awayLogo ? `<div class="match-wm match-wm--away" style="background-image:url('${escapeHTML(m.awayLogo)}')"></div>` : ''}
           <div class="latest-match__side">
             ${homeCrest}
             <span class="latest-match__name">${escapeHTML(m.homeTeam)}</span>
@@ -1004,8 +1006,11 @@ function renderRoster(players, teams) {
     grid.parentElement.insertBefore(heroCard, grid);
   }
 
+  const teamLogoMap = Object.fromEntries(teams.map(t => [t.name, t.logo || '']));
+
   grid.innerHTML = players.map((p, i) => `
     <a class="panel player-card animate-in" href="${playerLink(p)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(findTeamForPlayer(teams, p.team))}">
+      ${teamLogoMap[p.team] ? `<div class="player-wm" style="background-image:url('${escapeHTML(teamLogoMap[p.team])}')"></div>` : ''}
       ${avatarMarkup(p, 'player-card__avatar')}
       <span class="player-card__name">${escapeHTML(p.name)}</span>
       <span class="player-card__role">${escapeHTML(p.role)}</span>
@@ -1171,8 +1176,11 @@ function renderRankings(teams, matches) {
       : `<div class="rankings-crest rankings-crest--fallback">${escapeHTML(initials(team.name))}</div>`;
 
     return `
-      <tr class="row-anim" style="animation-delay:${index * 0.05}s">
-        <td data-label="#" class="rankings-rank">${escapeHTML(rankDisplay)}</td>
+      <tr class="row-anim" style="animation-delay:${index * 0.05}s" data-logo="${escapeHTML(team.logo || '')}">
+        <td data-label="#" class="rankings-rank">
+          <div class="rankings-wm" style="background-image:url('${escapeHTML(team.logo || '')}')"></div>
+          ${escapeHTML(rankDisplay)}
+        </td>
         <td data-label="Team">
           <div class="rankings-team-cell">
             ${crest}
