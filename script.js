@@ -411,9 +411,12 @@ function renderHome(allMatches, teams) {
     }
   }
 
-  setText('stat-total', allMatches.length);
-  setText('stat-goals', allMatches.reduce((sum, m) => sum + m.scoreFor + m.scoreAgainst, 0));
-  setText('stat-teams', teams.length);
+  const totalEl = document.getElementById('stat-total');
+  const goalsEl = document.getElementById('stat-goals');
+  const teamsEl = document.getElementById('stat-teams');
+  if (totalEl) animateCounter(totalEl, allMatches.length);
+  if (goalsEl) animateCounter(goalsEl, allMatches.reduce((s, m) => s + m.scoreFor + m.scoreAgainst, 0));
+  if (teamsEl) animateCounter(teamsEl, teams.length);
 
   const latestEl = document.getElementById('latest-match');
   if (latestEl) {
@@ -457,9 +460,9 @@ function renderHome(allMatches, teams) {
     if (recent.length === 0) {
       recentEl.innerHTML = emptyState('No recent matches to show yet.');
     } else {
-      recentEl.innerHTML = recent.map(m => {
+      recentEl.innerHTML = recent.map((m, i) => {
         return `
-          <div class="panel match-card-mini">
+          <div class="panel match-card-mini animate-in" style="animation-delay:${i * 0.06}s">
             <div class="match-card-mini__top">
               <span class="match-card-mini__opponent">${escapeHTML(m.homeTeam)} vs ${escapeHTML(m.awayTeam)}</span>
             </div>
@@ -470,6 +473,23 @@ function renderHome(allMatches, teams) {
       }).join('');
     }
   }
+}
+
+function animateCounter(el, target) {
+  el.classList.remove('skel');
+  if (typeof target !== 'number' || isNaN(target)) {
+    el.textContent = target;
+    return;
+  }
+  const duration = 900;
+  const start = performance.now();
+  const tick = (now) => {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(target * eased);
+    if (t < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 function setText(id, value) {
@@ -591,10 +611,10 @@ function renderMatchesTable() {
     return;
   }
 
-  tbody.innerHTML = filtered.map(m => {
+  tbody.innerHTML = filtered.map((m, i) => {
     const { opponent, result } = getDisplayResultAndOpponent(m);
     return `
-    <tr>
+    <tr class="row-anim" style="animation-delay:${Math.min(i * 0.03, 0.3)}s">
       <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
       <td data-label="Match">${escapeHTML(m.homeTeam)} vs ${escapeHTML(m.awayTeam)}</td>
       <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
@@ -893,8 +913,8 @@ function renderRoster(players, teams) {
     return;
   }
 
-  grid.innerHTML = players.map(p => `
-    <a class="panel player-card" href="${playerLink(p)}" ${playerCardStyleAttr(teams, p)}>
+  grid.innerHTML = players.map((p, i) => `
+    <a class="panel player-card animate-in" href="${playerLink(p)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(findTeamForPlayer(teams, p.team))}">
       ${avatarMarkup(p, 'player-card__avatar')}
       <span class="player-card__name">${escapeHTML(p.name)}</span>
       <span class="player-card__role">${escapeHTML(p.role)}</span>
@@ -926,8 +946,8 @@ function renderTeams(teams) {
     return;
   }
 
-  grid.innerHTML = teams.map(team => `
-    <a class="panel player-card" href="team.html?id=${encodeURIComponent(team.teamId)}" ${teamColorStyleAttr(team)}>
+  grid.innerHTML = teams.map((team, i) => `
+    <a class="panel player-card animate-in" href="team.html?id=${encodeURIComponent(team.teamId)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(team)}">
       ${team.logo
         ? `<img class="player-card__avatar" src="${escapeHTML(team.logo)}" alt="${escapeHTML(team.name)} logo">`
         : `<div class="player-card__avatar player-card__avatar--fallback">${escapeHTML(initials(team.name))}</div>`}
@@ -1025,7 +1045,7 @@ function renderRankings(teams, matches) {
       : `<div class="rankings-crest rankings-crest--fallback">${escapeHTML(initials(team.name))}</div>`;
 
     return `
-      <tr>
+      <tr class="row-anim" style="animation-delay:${index * 0.05}s">
         <td data-label="#" class="rankings-rank">${escapeHTML(rankDisplay)}</td>
         <td data-label="Team">
           <div class="rankings-team-cell">

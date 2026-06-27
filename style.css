@@ -1332,7 +1332,41 @@ tbody tr:hover {
   letter-spacing: normal;
   text-transform: none;
 }
-.skel { color: var(--text-faint); }
+.skel {
+  color: transparent !important;
+  background: linear-gradient(
+    100deg,
+    rgba(109,179,255,0.06) 25%,
+    rgba(109,179,255,0.18) 50%,
+    rgba(109,179,255,0.06) 75%
+  );
+  background-size: 200% auto;
+  border-radius: 4px;
+  display: inline-block;
+  min-width: 52px;
+  animation: skel-shimmer 1.4s linear infinite;
+}
+
+@keyframes skel-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes card-rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+.animate-in {
+  animation: card-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes row-slide {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.row-anim {
+  animation: row-slide 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
 /* =========================================================
    Charts
