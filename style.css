@@ -62,7 +62,6 @@ body {
   flex-direction: column;
   min-height: 100vh;
   position: relative;
-  isolation: isolate;
 }
 
 /* Global atmosphere — grid + ambient glow + film grain (HLTV / Liquipedia feel) */
@@ -804,6 +803,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   padding: 22px;
   clip-path: polygon(var(--notch) 0%, 100% 0%, 100% 100%, 0% 100%, 0% var(--notch));
   position: relative;
+  isolation: isolate;
   box-shadow: var(--shadow-card), var(--shadow-inset);
   transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
