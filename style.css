@@ -41,7 +41,15 @@
    Reset & base
    ========================================================= */
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+
+/* Hide scrollbar */
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
 
 body {
   margin: 0;
