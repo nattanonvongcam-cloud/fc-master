@@ -1,4 +1,4 @@
-const CACHE = 'fcm-cache-v2';
+const CACHE = 'fcm-cache-v3';
 const STATIC = [
   '/',
   '/index.html',
@@ -31,11 +31,15 @@ self.addEventListener('activate', e => {
 
 async function networkFirst(request, cache) {
   try {
-    const res = await fetch(request);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch(request, { signal: controller.signal });
+    clearTimeout(timeout);
     if (res.ok) cache.put(request, res.clone());
     return res;
   } catch {
-    return cache.match(request);
+    const cached = await cache.match(request);
+    return cached || new Response('Offline', { status: 503 });
   }
 }
 
@@ -56,10 +60,10 @@ self.addEventListener('fetch', e => {
   // Never intercept Google Sheets — let sessionStorage handle those
   if (url.hostname.includes('google') || url.hostname.includes('googleapis')) return;
 
-  // HTML: stale-while-revalidate (instant load, update in background)
+  // HTML: network-first with short timeout so pages stay in sync
   if (e.request.destination === 'document') {
     e.respondWith(
-      caches.open(CACHE).then(cache => staleWhileRevalidate(e.request, cache))
+      caches.open(CACHE).then(cache => networkFirst(e.request, cache))
     );
     return;
   }
