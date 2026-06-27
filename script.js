@@ -253,6 +253,7 @@ function rowsToTeams(rows) {
     captain: headers.indexOf('captain'),
     description: headers.indexOf('description'),
     logo: headers.indexOf('logo'),
+    color: headers.indexOf('color'),
   };
 
   const teams = [];
@@ -261,17 +262,59 @@ function rowsToTeams(rows) {
     const name = (cells[idx.name] || '').trim();
     if (!name) continue;
 
+    const colorRaw = idx.color >= 0 ? (cells[idx.color] || '').trim() : '';
+
     teams.push({
       teamId: (cells[idx.teamId] || '').trim() || 'main',
       name,
       captain: (cells[idx.captain] || '').trim() || 'TBD',
       description: (cells[idx.description] || '').trim(),
       logo: (cells[idx.logo] || '').trim(),
+      colorRgb: hexToRgbTriplet(colorRaw) || DEFAULT_TEAM_COLOR_RGB,
     });
   }
 
   teams.sort((a, b) => a.name.localeCompare(b.name));
   return teams;
+}
+
+const DEFAULT_TEAM_COLOR_RGB = '91 157 255';
+
+function hexToRgbTriplet(hex) {
+  const raw = String(hex || '').trim().replace(/^#/, '');
+  if (!raw) return null;
+  let r, g, b;
+  if (raw.length === 3) {
+    r = parseInt(raw[0] + raw[0], 16);
+    g = parseInt(raw[1] + raw[1], 16);
+    b = parseInt(raw[2] + raw[2], 16);
+  } else if (raw.length === 6) {
+    r = parseInt(raw.slice(0, 2), 16);
+    g = parseInt(raw.slice(2, 4), 16);
+    b = parseInt(raw.slice(4, 6), 16);
+  } else return null;
+  if ([r, g, b].some(n => isNaN(n))) return null;
+  return `${r} ${g} ${b}`;
+}
+
+function findTeamForPlayer(teams, playerTeamValue) {
+  if (!playerTeamValue) return null;
+  return teams.find(t =>
+    normalizeTeamValue(t.name) === normalizeTeamValue(playerTeamValue)
+    || normalizeTeamValue(t.teamId) === normalizeTeamValue(playerTeamValue)
+  ) || null;
+}
+
+function teamColorRgb(team) {
+  return team && team.colorRgb ? team.colorRgb : DEFAULT_TEAM_COLOR_RGB;
+}
+
+function teamColorStyleAttr(team) {
+  return `style="--team-c: ${teamColorRgb(team)}"`;
+}
+
+function playerCardStyleAttr(teams, player) {
+  return teamColorStyleAttr(findTeamForPlayer(teams, player.team));
 }
 
 async function fetchTeams() {
@@ -766,7 +809,7 @@ function playerLink(player) {
   return `player.html?name=${encodeURIComponent(player.name)}`;
 }
 
-function renderRoster(players) {
+function renderRoster(players, teams) {
   const grid = document.getElementById('roster-grid');
   const countEl = document.getElementById('roster-count');
   if (!grid) return;
@@ -779,7 +822,7 @@ function renderRoster(players) {
   }
 
   grid.innerHTML = players.map(p => `
-    <a class="panel player-card" href="${playerLink(p)}">
+    <a class="panel player-card" href="${playerLink(p)}" ${playerCardStyleAttr(teams, p)}>
       ${avatarMarkup(p, 'player-card__avatar')}
       <span class="player-card__name">${escapeHTML(p.name)}</span>
       <span class="player-card__role">${escapeHTML(p.role)}</span>
@@ -812,7 +855,7 @@ function renderTeams(teams) {
   }
 
   grid.innerHTML = teams.map(team => `
-    <a class="panel player-card" href="team.html?id=${encodeURIComponent(team.teamId)}">
+    <a class="panel player-card" href="team.html?id=${encodeURIComponent(team.teamId)}" ${teamColorStyleAttr(team)}>
       ${team.logo
         ? `<img class="player-card__avatar" src="${escapeHTML(team.logo)}" alt="${escapeHTML(team.name)} logo">`
         : `<div class="player-card__avatar player-card__avatar--fallback">${escapeHTML(initials(team.name))}</div>`}
@@ -954,7 +997,7 @@ function renderPlayerProfile(players, matches, teams) {
   document.title = `${player.name}`;
 
   wrap.innerHTML = `
-    <div class="player-profile__header">
+    <div class="player-profile__header" ${teamColorStyleAttr(findTeamForPlayer(teams, player.team))}>
       ${avatarMarkup(player, 'player-profile__avatar')}
       <div class="player-profile__id">
         <h1 class="player-profile__name">${escapeHTML(player.name)}</h1>
@@ -1119,7 +1162,7 @@ function renderTeamProfile(teams, players, matches) {
       rosterGrid.innerHTML = emptyState('No roster members for this team yet.');
     } else {
       rosterGrid.innerHTML = filteredPlayers.map(p => `
-        <a class="panel player-card" href="${playerLink(p)}">
+        <a class="panel player-card" href="${playerLink(p)}" ${teamColorStyleAttr(team)}>
           ${avatarMarkup(p, 'player-card__avatar')}
           <span class="player-card__name">${escapeHTML(p.name)}</span>
           <span class="player-card__role">${escapeHTML(p.role)}</span>
@@ -1253,7 +1296,7 @@ async function init() {
   const isTeamPage = document.getElementById('team-profile');
   const isRankingsPage = document.getElementById('rankings-root');
   const needsPlayers = isRosterPage || isPlayerPage || isTeamPage;
-  const needsTeams = isTeamsPage || isTeamPage || isRankingsPage || isMatchesPage || isStatsPage || isPlayerPage;
+  const needsTeams = isTeamsPage || isTeamPage || isRankingsPage || isMatchesPage || isStatsPage || isPlayerPage || isRosterPage;
 
   try {
     const [matches, players, teams] = await Promise.all([
@@ -1276,7 +1319,7 @@ async function init() {
       setupTeamFilterBar(() => renderStatsPage());
       renderStatsPage();
     }
-    if (isRosterPage) renderRoster(players);
+    if (isRosterPage) renderRoster(players, teams);
     if (isPlayerPage) renderPlayerProfile(players, matches, teams);
     if (isTeamsPage) renderTeams(teams);
     if (isTeamPage) renderTeamProfile(teams, players, matches);

@@ -1371,7 +1371,7 @@ tbody tr:hover {
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 .player-card:hover {
-  border-color: rgba(109, 179, 255, 0.3);
+  border-color: rgb(var(--team-c, 91 157 255) / 0.3);
   transform: translateY(-4px);
   box-shadow: var(--shadow-card-hover), var(--shadow-inset);
 }
@@ -1380,9 +1380,9 @@ tbody tr:hover {
   height: 76px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(109, 179, 255, 0.3);
+  border: 2px solid rgb(var(--team-c, 91 157 255) / 0.6);
   margin-bottom: 8px;
-  box-shadow: 0 0 28px var(--accent-glow-soft);
+  box-shadow: 0 0 24px rgb(var(--team-c, 91 157 255) / 0.35);
 }
 .player-card__avatar--fallback,
 .player-profile__avatar--fallback {
@@ -1390,9 +1390,11 @@ tbody tr:hover {
   align-items: center;
   justify-content: center;
   background: var(--bg-panel-raised);
-  color: var(--accent-blue-bright);
   font-family: var(--font-eyebrow);
   font-weight: 600;
+}
+.player-card .player-card__avatar--fallback {
+  color: rgb(var(--team-c, 91 157 255));
 }
 .player-card__avatar--fallback { font-size: 22px; }
 .player-card__name {
@@ -1407,8 +1409,8 @@ tbody tr:hover {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent-blue-bright);
-  text-shadow: 0 0 12px var(--accent-glow-soft);
+  color: rgb(var(--team-c, 91 157 255));
+  text-shadow: 0 0 12px rgb(var(--team-c, 91 157 255) / 0.35);
 }
 .player-card__team { margin: 4px 0 10px; }
 .player-card__stats {
@@ -1465,9 +1467,12 @@ tbody tr:hover {
   height: 104px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--border-line-strong);
+  border: 3px solid rgb(var(--team-c, 91 157 255) / 0.6);
   flex-shrink: 0;
-  box-shadow: 0 0 32px rgba(46, 110, 246, 0.2);
+  box-shadow: 0 0 32px rgb(var(--team-c, 91 157 255) / 0.35);
+}
+.player-profile__avatar--fallback {
+  color: rgb(var(--team-c, 91 157 255));
 }
 .player-profile__avatar--fallback { font-size: 32px; }
 .player-profile__id {
