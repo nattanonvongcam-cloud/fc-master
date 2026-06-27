@@ -61,29 +61,6 @@ function isOrgTeam(value) {
   return ORG_TEAMS.some(team => normalizeTeamValue(team) === normalizeTeamValue(value));
 }
 
-function getOpponentSide(match) {
-  const homeIsOrg = isOrgTeam(match.homeTeam);
-  const awayIsOrg = isOrgTeam(match.awayTeam);
-
-  if (homeIsOrg && !awayIsOrg) {
-    return { name: match.awayTeam || 'Unknown', logo: match.awayLogo || '' };
-  }
-  if (awayIsOrg && !homeIsOrg) {
-    return { name: match.homeTeam || 'Unknown', logo: match.homeLogo || '' };
-  }
-  return { name: match.awayTeam || match.homeTeam || 'Unknown', logo: match.awayLogo || match.homeLogo || '' };
-}
-
-function getOurSide(match) {
-  if (isOrgTeam(match.homeTeam)) {
-    return { score: match.scoreFor, against: match.scoreAgainst };
-  }
-  if (isOrgTeam(match.awayTeam)) {
-    return { score: match.scoreAgainst, against: match.scoreFor };
-  }
-  return { score: match.scoreFor, against: match.scoreAgainst };
-}
-
 function resultFromScores(scoreA, scoreB) {
   if (scoreA > scoreB) return 'WIN';
   if (scoreA < scoreB) return 'LOSS';
@@ -125,18 +102,6 @@ function computeStatsForTeam(matches, teamId) {
   return { total, wins, losses, draws, winRate };
 }
 
-const ORG_LOGO_FALLBACK = 'https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=80&quality=lossless';
-
-function getOurSideInfo(match) {
-  if (isOrgTeam(match.homeTeam)) {
-    return { name: match.homeTeam || 'FC Master', logo: match.homeLogo || ORG_LOGO_FALLBACK };
-  }
-  if (isOrgTeam(match.awayTeam)) {
-    return { name: match.awayTeam || 'FC Master', logo: match.awayLogo || ORG_LOGO_FALLBACK };
-  }
-  return { name: match.homeTeam || 'FC Master', logo: match.homeLogo || ORG_LOGO_FALLBACK };
-}
-
 // Turns raw CSV rows into match objects, skipping anything
 // without a usable date (e.g. stray blank rows).
 function rowsToMatches(rows) {
@@ -171,11 +136,10 @@ function rowsToMatches(rows) {
     const awayTeam = (cells[idx.awayTeam] || '').trim() || 'Unknown';
     const homeLogo = (idx.homeLogo >= 0 ? (cells[idx.homeLogo] || '') : '').trim();
     const awayLogo = (idx.awayLogo >= 0 ? (cells[idx.awayLogo] || '') : '').trim();
-    const ourSide = getOurSide({ homeTeam, awayTeam, scoreFor, scoreAgainst });
 
     let result = 'DRAW';
-    if (ourSide.score > ourSide.against) result = 'WIN';
-    else if (ourSide.score < ourSide.against) result = 'LOSS';
+    if (scoreFor > scoreAgainst) result = 'WIN';
+    else if (scoreFor < scoreAgainst) result = 'LOSS';
 
     matches.push({
       date: dateObj,
@@ -330,14 +294,7 @@ function escapeHTML(str) {
 // HOME PAGE
 // =========================================================
 function renderHome(allMatches) {
-  const orgMatches = allMatches.filter(m => isOrgTeam(m.homeTeam) || isOrgTeam(m.awayTeam));
-  const stats = computeStats(orgMatches);
-
-  setText('stat-total', stats.total);
-  setText('stat-wins', stats.wins);
-  setText('stat-losses', stats.losses);
-  setText('stat-draws', stats.draws);
-  setText('stat-winrate', `${stats.winRate}%`);
+  // no stats rendered until a team is selected (handled by stat card placeholder)
 
   const latestEl = document.getElementById('latest-match');
   if (latestEl) {
@@ -377,17 +334,15 @@ function renderHome(allMatches) {
 
   const recentEl = document.getElementById('recent-matches');
   if (recentEl) {
-    const recent = orgMatches.slice(0, 4);
+    const recent = allMatches.slice(0, 4);
     if (recent.length === 0) {
       recentEl.innerHTML = emptyState('No recent matches to show yet.');
     } else {
       recentEl.innerHTML = recent.map(m => {
-        const opponent = getOpponentSide(m);
         return `
           <div class="panel match-card-mini">
             <div class="match-card-mini__top">
-              <span class="match-card-mini__opponent">vs ${escapeHTML(opponent.name)}</span>
-              ${badgeFor(m.result)}
+              <span class="match-card-mini__opponent">${escapeHTML(m.homeTeam)} vs ${escapeHTML(m.awayTeam)}</span>
             </div>
             <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
             <span class="match-card-mini__date">${formatDate(m.date)}</span>
@@ -479,11 +434,13 @@ function setupTeamFilterBar(onChange) {
 
 function getDisplayResultAndOpponent(m) {
   if (!ACTIVE_TEAM_FILTER) {
-    return { opponent: getOpponentSide(m), result: m.result };
+    return { opponent: { name: m.awayTeam || m.homeTeam || 'Unknown', logo: '' }, result: m.result };
   }
+  const activeTeam = ALL_TEAMS.find(t => (t.teamId || '').trim() === ACTIVE_TEAM_FILTER);
+  const matchKey = activeTeam ? (activeTeam.name || activeTeam.teamId) : ACTIVE_TEAM_FILTER;
   return {
-    opponent: getOpponentForTeam(m, ACTIVE_TEAM_FILTER),
-    result: getResultForTeam(m, ACTIVE_TEAM_FILTER),
+    opponent: getOpponentForTeam(m, matchKey),
+    result: getResultForTeam(m, matchKey),
   };
 }
 
@@ -493,7 +450,7 @@ function renderMatchesTable() {
   if (!tbody) return;
 
   if (!ACTIVE_TEAM_FILTER || !ACTIVE_FILTER) {
-    tbody.innerHTML = `<tr><td colspan="6">${emptyState('กรุณาเลือกทีมและผลการแข่งขันก่อนดูตาราง')}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6">${emptyState('Please select a team and a result to view matches.')}</td></tr>`;
     if (countEl) countEl.textContent = '';
     return;
   }
@@ -853,7 +810,11 @@ function computeStandings(teams, matches) {
     pts: 0,
   }));
 
-  const byKey = new Map(standings.map(team => [normalizeTeamValue(team.teamId || team.name), team]));
+  const byKey = new Map();
+  standings.forEach(team => {
+    if (team.teamId) byKey.set(normalizeTeamValue(team.teamId), team);
+    if (team.name) byKey.set(normalizeTeamValue(team.name), team);
+  });
 
   matches.forEach(match => {
     const homeKey = normalizeTeamValue(match.homeTeam);
@@ -956,13 +917,13 @@ function renderPlayerProfile(players, matches, teams) {
 
   if (!requested || !player) {
     wrap.innerHTML = emptyState('Player not found. Go back to the Roster and pick a player card.');
-    document.title = 'Player Not Found — FC Master';
+    document.title = 'Player Not Found';
     const mvpSection = document.getElementById('player-mvp-matches');
     if (mvpSection) mvpSection.innerHTML = '';
     return;
   }
 
-  document.title = `${player.name} — FC Master`;
+  document.title = `${player.name}`;
 
   wrap.innerHTML = `
     <div class="player-profile__header">
@@ -1039,14 +1000,14 @@ function renderTeamProfile(teams, players, matches) {
 
   if (!requested || !team) {
     wrap.innerHTML = emptyState('Team not found. Go back to the Teams page and pick a team card.');
-    document.title = 'Team Not Found — FC Master';
+    document.title = 'Team Not Found';
     if (statGrid) statGrid.innerHTML = '';
     if (tbody) tbody.innerHTML = `<tr><td colspan="6">${emptyState('No team selected.')}</td></tr>`;
     if (rosterGrid) rosterGrid.innerHTML = '';
     return;
   }
 
-  document.title = `${team.name} — FC Master`;
+  document.title = `${team.name}`;
 
   wrap.innerHTML = `
     <div class="player-profile__header">
