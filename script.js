@@ -84,6 +84,47 @@ function getOurSide(match) {
   return { score: match.scoreFor, against: match.scoreAgainst };
 }
 
+function resultFromScores(scoreA, scoreB) {
+  if (scoreA > scoreB) return 'WIN';
+  if (scoreA < scoreB) return 'LOSS';
+  return 'DRAW';
+}
+
+// Result of a match from the perspective of a specific team (matched by TeamID or name).
+// Returns null if the team isn't involved in this match.
+function getResultForTeam(match, teamId) {
+  const key = normalizeTeamValue(teamId);
+  const home = normalizeTeamValue(match.homeTeam);
+  const away = normalizeTeamValue(match.awayTeam);
+  if (key === home) return resultFromScores(match.scoreFor, match.scoreAgainst);
+  if (key === away) return resultFromScores(match.scoreAgainst, match.scoreFor);
+  return null;
+}
+
+// Opponent info from the perspective of a specific team.
+function getOpponentForTeam(match, teamId) {
+  const key = normalizeTeamValue(teamId);
+  const home = normalizeTeamValue(match.homeTeam);
+  if (key === home) {
+    return { name: match.awayTeam || 'Unknown', logo: match.awayLogo || '' };
+  }
+  return { name: match.homeTeam || 'Unknown', logo: match.homeLogo || '' };
+}
+
+// Stats (wins/losses/draws/winRate) computed from a specific team's perspective.
+function computeStatsForTeam(matches, teamId) {
+  let wins = 0, losses = 0, draws = 0;
+  matches.forEach(m => {
+    const r = getResultForTeam(m, teamId);
+    if (r === 'WIN') wins++;
+    else if (r === 'LOSS') losses++;
+    else if (r === 'DRAW') draws++;
+  });
+  const total = wins + losses + draws;
+  const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+  return { total, wins, losses, draws, winRate };
+}
+
 const ORG_LOGO_FALLBACK = 'https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=80&quality=lossless';
 
 function getOurSideInfo(match) {
@@ -437,6 +478,16 @@ function setupTeamFilterBar(onChange) {
   });
 }
 
+function getDisplayResultAndOpponent(m) {
+  if (ACTIVE_TEAM_FILTER === 'ALL') {
+    return { opponent: getOpponentSide(m), result: m.result };
+  }
+  return {
+    opponent: getOpponentForTeam(m, ACTIVE_TEAM_FILTER),
+    result: getResultForTeam(m, ACTIVE_TEAM_FILTER),
+  };
+}
+
 function renderMatchesTable() {
   const tbody = document.getElementById('matches-tbody');
   const countEl = document.getElementById('filter-count');
@@ -445,7 +496,7 @@ function renderMatchesTable() {
   const teamFiltered = getTeamFilteredMatches();
   const filtered = ACTIVE_FILTER === 'ALL'
     ? teamFiltered
-    : teamFiltered.filter(m => m.result === ACTIVE_FILTER);
+    : teamFiltered.filter(m => getDisplayResultAndOpponent(m).result === ACTIVE_FILTER);
 
   if (countEl) {
     countEl.textContent = `Showing ${filtered.length} of ${ALL_MATCHES.length} matches`;
@@ -457,13 +508,13 @@ function renderMatchesTable() {
   }
 
   tbody.innerHTML = filtered.map(m => {
-    const opponent = getOpponentSide(m);
+    const { opponent, result } = getDisplayResultAndOpponent(m);
     return `
     <tr>
       <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
       <td data-label="Opponent">vs ${escapeHTML(opponent.name)}</td>
       <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
-      <td data-label="Result">${badgeFor(m.result)}</td>
+      <td data-label="Result">${badgeFor(result)}</td>
       <td data-label="Tournament"><span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span></td>
       <td data-label="MVP" class="cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</td>
     </tr>
@@ -891,7 +942,7 @@ function getQueryParam(key) {
   return new URLSearchParams(window.location.search).get(key);
 }
 
-function renderPlayerProfile(players, matches) {
+function renderPlayerProfile(players, matches, teams) {
   const wrap = document.getElementById('player-profile');
   if (!wrap) return;
 
@@ -945,17 +996,19 @@ function renderPlayerProfile(players, matches) {
 
   const mvpSection = document.getElementById('player-mvp-matches');
   if (mvpSection) {
+    const playerTeamId = (teams.find(t => normalizeTeamValue(t.name) === normalizeTeamValue(player.team)
+      || normalizeTeamValue(t.teamId) === normalizeTeamValue(player.team)) || {}).teamId || player.team;
     const mvpMatches = matches.filter(m => m.mvp && m.mvp.toLowerCase() === player.name.toLowerCase());
     if (mvpMatches.length === 0) {
       mvpSection.innerHTML = emptyState('No recorded MVP matches yet.');
     } else {
       mvpSection.innerHTML = mvpMatches.slice(0, 6).map(m => {
-        const opponent = getOpponentSide(m);
+        const opponent = getOpponentForTeam(m, playerTeamId);
         return `
           <div class="panel match-card-mini">
             <div class="match-card-mini__top">
               <span class="match-card-mini__opponent">vs ${escapeHTML(opponent.name)}</span>
-              ${badgeFor(m.result)}
+              ${badgeFor(getResultForTeam(m, playerTeamId))}
             </div>
             <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
             <span class="match-card-mini__date">${formatDate(m.date)}</span>
@@ -1011,7 +1064,7 @@ function renderTeamProfile(teams, players, matches) {
     const away = normalizeTeamValue(m.awayTeam);
     return home === requested || away === requested;
   });
-  const stats = computeStats(teamMatches);
+  const stats = computeStatsForTeam(teamMatches, requested);
 
   if (statGrid) {
     statGrid.innerHTML = `
@@ -1043,13 +1096,13 @@ function renderTeamProfile(teams, players, matches) {
       tbody.innerHTML = `<tr><td colspan="6">${emptyState('No matches for this team yet.')}</td></tr>`;
     } else {
       tbody.innerHTML = teamMatches.map(m => {
-        const opponent = getOpponentSide(m);
+        const opponent = getOpponentForTeam(m, requested);
         return `
           <tr>
             <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
             <td data-label="Opponent">vs ${escapeHTML(opponent.name)}</td>
             <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
-            <td data-label="Result">${badgeFor(m.result)}</td>
+            <td data-label="Result">${badgeFor(getResultForTeam(m, requested))}</td>
             <td data-label="Tournament"><span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span></td>
             <td data-label="MVP" class="cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</td>
           </tr>
@@ -1094,7 +1147,7 @@ async function init() {
   const isTeamPage = document.getElementById('team-profile');
   const isRankingsPage = document.getElementById('rankings-root');
   const needsPlayers = isRosterPage || isPlayerPage || isTeamPage;
-  const needsTeams = isTeamsPage || isTeamPage || isRankingsPage || isMatchesPage || isStatsPage;
+  const needsTeams = isTeamsPage || isTeamPage || isRankingsPage || isMatchesPage || isStatsPage || isPlayerPage;
 
   try {
     const [matches, players, teams] = await Promise.all([
@@ -1118,7 +1171,7 @@ async function init() {
       renderStatsPage();
     }
     if (isRosterPage) renderRoster(players);
-    if (isPlayerPage) renderPlayerProfile(players, matches);
+    if (isPlayerPage) renderPlayerProfile(players, matches, teams);
     if (isTeamsPage) renderTeams(teams);
     if (isTeamPage) renderTeamProfile(teams, players, matches);
     if (isRankingsPage) renderRankings(teams, matches);
