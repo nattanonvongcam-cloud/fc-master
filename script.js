@@ -330,8 +330,8 @@ function escapeHTML(str) {
 // HOME PAGE
 // =========================================================
 function renderHome(allMatches) {
-  const matches = allMatches.filter(m => isOrgTeam(m.homeTeam) || isOrgTeam(m.awayTeam));
-  const stats = computeStats(matches);
+  const orgMatches = allMatches.filter(m => isOrgTeam(m.homeTeam) || isOrgTeam(m.awayTeam));
+  const stats = computeStats(orgMatches);
 
   setText('stat-total', stats.total);
   setText('stat-wins', stats.wins);
@@ -341,21 +341,22 @@ function renderHome(allMatches) {
 
   const latestEl = document.getElementById('latest-match');
   if (latestEl) {
-    if (matches.length === 0) {
+    if (allMatches.length === 0) {
       latestEl.innerHTML = emptyState('No matches yet. Add a row to the Matches sheet to see it here.');
     } else {
-      const m = matches[0];
-      const opponent = getOpponentSide(m);
-      const ours = getOurSideInfo(m);
-      const opponentCrest = opponent.logo
-        ? `<img class="team-crest" src="${escapeHTML(opponent.logo)}" alt="${escapeHTML(opponent.name)} logo">`
+      const m = allMatches[0];
+      const homeCrest = m.homeLogo
+        ? `<img class="team-crest" src="${escapeHTML(m.homeLogo)}" alt="${escapeHTML(m.homeTeam)} logo">`
+        : `<div class="team-crest"></div>`;
+      const awayCrest = m.awayLogo
+        ? `<img class="team-crest" src="${escapeHTML(m.awayLogo)}" alt="${escapeHTML(m.awayTeam)} logo">`
         : `<div class="team-crest"></div>`;
 
       latestEl.innerHTML = `
         <div class="latest-match">
           <div class="latest-match__side">
-            <img class="team-crest" src="${escapeHTML(ours.logo)}" alt="${escapeHTML(ours.name)} logo">
-            <span class="latest-match__name">${escapeHTML(ours.name)}</span>
+            ${homeCrest}
+            <span class="latest-match__name">${escapeHTML(m.homeTeam)}</span>
           </div>
           <div class="latest-match__score">
             <span>${m.scoreFor}</span>
@@ -363,12 +364,11 @@ function renderHome(allMatches) {
             <span>${m.scoreAgainst}</span>
           </div>
           <div class="latest-match__side">
-            ${opponentCrest}
-            <span class="latest-match__name">${escapeHTML(opponent.name)}</span>
+            ${awayCrest}
+            <span class="latest-match__name">${escapeHTML(m.awayTeam)}</span>
           </div>
         </div>
         <div class="latest-match__meta">
-          <span>${badgeFor(m.result)}</span>
           <span>${formatDate(m.date)} &middot; ${escapeHTML(m.tournament)}</span>
         </div>
       `;
@@ -377,7 +377,7 @@ function renderHome(allMatches) {
 
   const recentEl = document.getElementById('recent-matches');
   if (recentEl) {
-    const recent = matches.slice(0, 4);
+    const recent = orgMatches.slice(0, 4);
     if (recent.length === 0) {
       recentEl.innerHTML = emptyState('No recent matches to show yet.');
     } else {
@@ -419,8 +419,8 @@ function errorState(msg) {
 // =========================================================
 let ALL_MATCHES = [];
 let ALL_TEAMS = [];
-let ACTIVE_FILTER = 'ALL';
-let ACTIVE_TEAM_FILTER = 'ALL';
+let ACTIVE_FILTER = null;
+let ACTIVE_TEAM_FILTER = null;
 
 function teamFilterKeys(team) {
   const keys = new Set();
@@ -439,7 +439,7 @@ function matchInvolvesTeam(match, team) {
 }
 
 function getTeamFilteredMatches() {
-  if (ACTIVE_TEAM_FILTER === 'ALL') return ALL_MATCHES;
+  if (!ACTIVE_TEAM_FILTER) return [];
   const team = ALL_TEAMS.find(t => (t.teamId || '').trim() === ACTIVE_TEAM_FILTER);
   if (!team) return ALL_MATCHES;
   return ALL_MATCHES.filter(m => matchInvolvesTeam(m, team));
@@ -455,7 +455,6 @@ function renderTeamFilterBar() {
   }
 
   bar.innerHTML = [
-    '<button type="button" class="filter-btn filter-btn--team is-active" data-team-filter="ALL">All Teams</button>',
     ...ALL_TEAMS.map(team => {
       const id = (team.teamId || '').trim();
       return `<button type="button" class="filter-btn filter-btn--team" data-team-filter="${escapeHTML(id)}">${escapeHTML(team.name)}</button>`;
@@ -479,7 +478,7 @@ function setupTeamFilterBar(onChange) {
 }
 
 function getDisplayResultAndOpponent(m) {
-  if (ACTIVE_TEAM_FILTER === 'ALL') {
+  if (!ACTIVE_TEAM_FILTER) {
     return { opponent: getOpponentSide(m), result: m.result };
   }
   return {
@@ -492,6 +491,12 @@ function renderMatchesTable() {
   const tbody = document.getElementById('matches-tbody');
   const countEl = document.getElementById('filter-count');
   if (!tbody) return;
+
+  if (!ACTIVE_TEAM_FILTER || !ACTIVE_FILTER) {
+    tbody.innerHTML = `<tr><td colspan="6">${emptyState('กรุณาเลือกทีมและผลการแข่งขันก่อนดูตาราง')}</td></tr>`;
+    if (countEl) countEl.textContent = '';
+    return;
+  }
 
   const teamFiltered = getTeamFilteredMatches();
   const filtered = ACTIVE_FILTER === 'ALL'
@@ -512,7 +517,7 @@ function renderMatchesTable() {
     return `
     <tr>
       <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
-      <td data-label="Opponent">vs ${escapeHTML(opponent.name)}</td>
+      <td data-label="Match">${escapeHTML(m.homeTeam)} vs ${escapeHTML(m.awayTeam)}</td>
       <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
       <td data-label="Result">${badgeFor(result)}</td>
       <td data-label="Tournament"><span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span></td>
