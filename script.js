@@ -493,8 +493,6 @@ function renderHome(allMatches, teams) {
           <div class="panel match-card-mini animate-in"
                style="animation-delay:${i * 0.06}s;--home-c:${recentTeamColorMap[normalizeTeamValue(m.homeTeam)] || '61 123 255'};--away-c:${recentTeamColorMap[normalizeTeamValue(m.awayTeam)] || '61 123 255'}">
             <div class="match-ink match-ink--subtle" aria-hidden="true"></div>
-            ${recentTeamLogoMap[normalizeTeamValue(m.homeTeam)] ? `<div class="match-logo match-logo--home match-logo--sm" style="background-image:url('${escapeHTML(recentTeamLogoMap[normalizeTeamValue(m.homeTeam)])}')"></div>` : ''}
-            ${recentTeamLogoMap[normalizeTeamValue(m.awayTeam)] ? `<div class="match-logo match-logo--away match-logo--sm" style="background-image:url('${escapeHTML(recentTeamLogoMap[normalizeTeamValue(m.awayTeam)])}')"></div>` : ''}
             <div class="match-card-mini__top">
               <span class="match-card-mini__opponent">${escapeHTML(m.homeTeam)} vs ${escapeHTML(m.awayTeam)}</span>
             </div>
@@ -705,10 +703,7 @@ function renderMatchesTable() {
     const { opponent, result } = getDisplayResultAndOpponent(m);
     return `
     <tr class="row-anim" style="animation-delay:${Math.min(i * 0.03, 0.3)}s;--home-c:${rowColorMap[normalizeTeamValue(m.homeTeam)] || '61 123 255'};--away-c:${rowColorMap[normalizeTeamValue(m.awayTeam)] || '61 123 255'}">
-      <td data-label="Date" class="cell-muted">
-        <div class="row-ink row-ink--match" aria-hidden="true"></div>
-        ${formatDate(m.date)}
-      </td>
+      <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
       <td data-label="Match">${escapeHTML(m.homeTeam)} vs ${escapeHTML(m.awayTeam)}</td>
       <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
       <td data-label="Result">${badgeFor(result)}</td>

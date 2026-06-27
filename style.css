@@ -2212,23 +2212,27 @@ tr[style*="--ink-c"] td {
 }
 
 /* Match history table rows */
-tr[style*="--home-c"] {
+table {
+  border-collapse: collapse;
+}
+tbody tr {
   position: relative;
 }
-.row-ink--match {
+tr[style*="--home-c"]::before {
+  content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   background:
     linear-gradient(to right,
-      rgb(var(--home-c) / 0.12) 0%,
-      rgb(var(--home-c) / 0.04) 25%,
+      rgb(var(--home-c) / 0.14) 0%,
+      rgb(var(--home-c) / 0.05) 25%,
       transparent 50%
     ),
     linear-gradient(to left,
-      rgb(var(--away-c) / 0.12) 0%,
-      rgb(var(--away-c) / 0.04) 25%,
+      rgb(var(--away-c) / 0.14) 0%,
+      rgb(var(--away-c) / 0.05) 25%,
       transparent 50%
     );
 }
