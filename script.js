@@ -288,7 +288,8 @@ function escapeHTML(str) {
 // =========================================================
 // HOME PAGE
 // =========================================================
-function renderHome(matches) {
+function renderHome(allMatches) {
+  const matches = allMatches.filter(m => isOrgTeam(m.homeTeam) || isOrgTeam(m.awayTeam));
   const stats = computeStats(matches);
 
   setText('stat-total', stats.total);
