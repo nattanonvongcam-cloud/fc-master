@@ -1205,6 +1205,12 @@ function initBottomNav() {
   });
 }
 
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+}
+
 function initTransitions() {
   const bar = document.createElement('div');
   bar.id = 'flash-bar';
@@ -1235,6 +1241,7 @@ function initTransitions() {
 }
 
 async function init() {
+  registerServiceWorker();
   initTransitions();
   initBottomNav();
   const isHome = document.getElementById('recent-matches');
