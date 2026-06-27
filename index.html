@@ -99,14 +99,9 @@
         </div>
       </div>
       <div class="stat-bento">
-        <div class="panel stat-card stat-card--featured">
+        <div class="panel stat-card stat-card--featured" id="stat-leader-card">
           <div class="stat-card__accent stat-card__accent--blue" aria-hidden="true"></div>
-          <div class="stat-card__head">
-            <span class="stat-card__label">Win Rate</span>
-            <span class="stat-card__pill">Peak</span>
-          </div>
-          <span class="stat-card__value stat-card__value--hero skel" id="stat-winrate">&mdash;</span>
-          <span class="stat-card__sub"><span id="stat-draws">&mdash;</span> draws on record</span>
+          <div class="state-message">Loading&hellip;</div>
         </div>
         <div class="panel stat-card">
           <div class="stat-card__accent stat-card__accent--neutral" aria-hidden="true"></div>
@@ -117,23 +112,21 @@
           <span class="stat-card__value skel" id="stat-total">&mdash;</span>
           <span class="stat-card__sub">All recorded scrims &amp; tournaments</span>
         </div>
-        <div class="panel stat-card stat-card--win">
-          <div class="stat-card__accent stat-card__accent--win" aria-hidden="true"></div>
+        <div class="panel stat-card">
+          <div class="stat-card__accent stat-card__accent--neutral" aria-hidden="true"></div>
           <div class="stat-card__head">
-            <span class="stat-card__label">Wins</span>
-            <span class="stat-card__pill stat-card__pill--win">Form</span>
+            <span class="stat-card__label">Total Goals</span>
           </div>
-          <span class="stat-card__value stat-card__value--win skel" id="stat-wins">&mdash;</span>
-          <span class="stat-card__sub">Matches won</span>
+          <span class="stat-card__value skel" id="stat-goals">&mdash;</span>
+          <span class="stat-card__sub">Goals scored across all matches</span>
         </div>
-        <div class="panel stat-card stat-card--loss">
-          <div class="stat-card__accent stat-card__accent--loss" aria-hidden="true"></div>
+        <div class="panel stat-card">
+          <div class="stat-card__accent stat-card__accent--neutral" aria-hidden="true"></div>
           <div class="stat-card__head">
-            <span class="stat-card__label">Losses</span>
-            <span class="stat-card__pill stat-card__pill--loss">Learn</span>
+            <span class="stat-card__label">Active Teams</span>
           </div>
-          <span class="stat-card__value stat-card__value--loss skel" id="stat-losses">&mdash;</span>
-          <span class="stat-card__sub">Matches lost</span>
+          <span class="stat-card__value skel" id="stat-teams">&mdash;</span>
+          <span class="stat-card__sub">Rosters currently tracked</span>
         </div>
       </div>
     </div>

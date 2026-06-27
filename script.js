@@ -364,8 +364,56 @@ function escapeHTML(str) {
 // =========================================================
 // HOME PAGE
 // =========================================================
-function renderHome(allMatches) {
-  // no stats rendered until a team is selected (handled by stat card placeholder)
+function renderHome(allMatches, teams) {
+  const standings = computeStandings(teams, allMatches);
+  const leader = standings[0];
+
+  const leaderCard = document.getElementById('stat-leader-card');
+  if (leaderCard) {
+    if (leader && leader.mp > 0) {
+      const winRate = Math.round((leader.w / leader.mp) * 100);
+      const leaderSource = teams.find(t =>
+        normalizeTeamValue(t.teamId) === normalizeTeamValue(leader.teamId)
+        || normalizeTeamValue(t.name) === normalizeTeamValue(leader.name)
+      );
+      const colorRgb = teamColorRgb(leaderSource);
+      leaderCard.setAttribute('style', `--team-c: ${colorRgb}`);
+      leaderCard.className = 'panel stat-card stat-card--featured';
+
+      const crest = leader.logo
+        ? `<img class="team-crest stat-card__leader-crest" src="${escapeHTML(leader.logo)}" alt="${escapeHTML(leader.name)} logo">`
+        : `<div class="team-crest stat-card__leader-crest stat-card__leader-crest--fallback">${escapeHTML(initials(leader.name))}</div>`;
+
+      leaderCard.innerHTML = `
+        <div class="stat-card__accent stat-card__accent--blue" aria-hidden="true"></div>
+        <div class="stat-card__head">
+          <span class="stat-card__label">Top Team</span>
+          <span class="stat-card__pill">Leader</span>
+        </div>
+        <a class="stat-card__leader-link" href="team.html?id=${encodeURIComponent(leader.teamId)}">
+          ${crest}
+          <span class="stat-card__leader-name">${escapeHTML(leader.name)}</span>
+        </a>
+        <span class="stat-card__value stat-card__value--hero">${winRate}%</span>
+        <span class="stat-card__sub">${leader.w}W ${leader.d}D ${leader.l}L &middot; ${leader.pts} pts</span>
+      `;
+    } else {
+      leaderCard.removeAttribute('style');
+      leaderCard.className = 'panel stat-card stat-card--featured';
+      leaderCard.innerHTML = `
+        <div class="stat-card__accent stat-card__accent--blue" aria-hidden="true"></div>
+        <div class="stat-card__head">
+          <span class="stat-card__label">Top Team</span>
+          <span class="stat-card__pill">Leader</span>
+        </div>
+        ${emptyState('No standings yet')}
+      `;
+    }
+  }
+
+  setText('stat-total', allMatches.length);
+  setText('stat-goals', allMatches.reduce((sum, m) => sum + m.scoreFor + m.scoreAgainst, 0));
+  setText('stat-teams', teams.length);
 
   const latestEl = document.getElementById('latest-match');
   if (latestEl) {
@@ -426,7 +474,10 @@ function renderHome(allMatches) {
 
 function setText(id, value) {
   const el = document.getElementById(id);
-  if (el) el.textContent = value;
+  if (el) {
+    el.textContent = value;
+    el.classList.remove('skel');
+  }
 }
 
 function emptyState(msg) {
@@ -1296,7 +1347,7 @@ async function init() {
   const isTeamPage = document.getElementById('team-profile');
   const isRankingsPage = document.getElementById('rankings-root');
   const needsPlayers = isRosterPage || isPlayerPage || isTeamPage;
-  const needsTeams = isTeamsPage || isTeamPage || isRankingsPage || isMatchesPage || isStatsPage || isPlayerPage || isRosterPage;
+  const needsTeams = isHome || isTeamsPage || isTeamPage || isRankingsPage || isMatchesPage || isStatsPage || isPlayerPage || isRosterPage;
 
   try {
     const [matches, players, teams] = await Promise.all([
@@ -1307,7 +1358,7 @@ async function init() {
     ALL_MATCHES = matches;
     ALL_TEAMS = teams;
 
-    if (isHome) renderHome(matches);
+    if (isHome) renderHome(matches, teams);
     if (isMatchesPage) {
       renderTeamFilterBar();
       setupTeamFilterBar(() => renderMatchesTable());

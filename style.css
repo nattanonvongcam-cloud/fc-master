@@ -299,6 +299,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   padding: 56px 0 48px;
   border-bottom: 1px solid var(--border-line);
   background:
+    linear-gradient(to bottom, transparent 0%, transparent 45%, var(--bg-void) 100%),
     linear-gradient(135deg, rgba(61, 123, 255, 0.1) 0%, transparent 55%),
     rgba(4, 6, 13, 0.85);
   box-shadow: inset 0 -1px 0 rgba(109, 179, 255, 0.08);
@@ -370,6 +371,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .page-banner--dashboard {
   padding: 38px 0 34px;
   background:
+    linear-gradient(to bottom, transparent 0%, transparent 45%, var(--bg-void) 100%),
     radial-gradient(ellipse 90% 140% at 15% -30%, rgba(61, 123, 255, 0.24) 0%, transparent 58%),
     radial-gradient(ellipse 55% 90% at 88% -10%, rgba(109, 179, 255, 0.14) 0%, transparent 52%),
     linear-gradient(180deg, rgba(12, 20, 38, 0.97) 0%, rgba(4, 6, 13, 0.99) 100%);
@@ -530,6 +532,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   position: absolute;
   inset: 0;
   background:
+    linear-gradient(to bottom, transparent 0%, transparent 55%, var(--bg-void) 100%),
     linear-gradient(105deg, rgba(5, 8, 16, 0.94) 0%, rgba(5, 8, 16, 0.7) 42%, rgba(5, 8, 16, 0.9) 100%),
     url('https://i.ibb.co/B2PHL9ym/FAmjm-BYWYAAL4sd.jpg') center / cover no-repeat;
 }
@@ -545,7 +548,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .hero-bg__vignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(5, 8, 16, 0.92) 0%, transparent 70%);
+  z-index: 1;
+  background: radial-gradient(ellipse 80% 60% at 50% 100%, var(--bg-void) 0%, transparent 70%);
 }
 .hero-glow {
   position: absolute;
@@ -885,11 +889,54 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 .stat-card--featured {
   background:
-    linear-gradient(145deg, rgba(61, 123, 255, 0.18) 0%, transparent 55%),
+    linear-gradient(145deg, rgb(var(--team-c, 91 157 255) / 0.18) 0%, transparent 55%),
     linear-gradient(165deg, rgba(15, 22, 40, 0.98) 0%, rgba(10, 15, 26, 0.99) 100%);
-  box-shadow: var(--shadow-card-hover), 0 0 48px var(--accent-glow-soft), var(--shadow-inset);
+  border: 1px solid rgb(var(--team-c, 91 157 255) / 0.2);
+  box-shadow: var(--shadow-card-hover), 0 0 48px rgb(var(--team-c, 91 157 255) / 0.2), var(--shadow-inset);
 }
-.stat-card--featured::after { opacity: 0.6; }
+.stat-card--featured::after {
+  opacity: 0.6;
+  background: radial-gradient(circle, rgb(var(--team-c, 91 157 255) / 0.2) 0%, transparent 70%);
+}
+.stat-card--featured .stat-card__accent--blue {
+  background: linear-gradient(90deg, rgb(var(--team-c, 91 157 255) / 0.7), rgb(var(--team-c, 91 157 255)));
+  box-shadow: 0 0 16px rgb(var(--team-c, 91 157 255) / 0.4);
+}
+.stat-card--featured .stat-card__value--hero {
+  color: rgb(var(--team-c, 91 157 255));
+  text-shadow: 0 0 24px rgb(var(--team-c, 91 157 255) / 0.35);
+}
+.stat-card__leader-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.stat-card__leader-name {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2.5vw, 22px);
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+.stat-card__leader-crest {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+.stat-card__leader-crest--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-eyebrow);
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--bg-panel-raised);
+  color: rgb(var(--team-c, 91 157 255));
+  border-radius: 50%;
+  border: 2px solid rgb(var(--team-c, 91 157 255) / 0.6);
+}
 .stat-card--win {
   background:
     linear-gradient(145deg, rgba(52, 211, 153, 0.1) 0%, transparent 45%),
