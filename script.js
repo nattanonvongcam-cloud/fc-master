@@ -161,10 +161,30 @@ function rowsToMatches(rows) {
   return matches;
 }
 
+function cacheSet(key, value) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), value }));
+  } catch (_) {}
+}
+
+function cacheGet(key, maxAgeMs) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, value } = JSON.parse(raw);
+    if (Date.now() - ts > maxAgeMs) return null;
+    return value;
+  } catch (_) { return null; }
+}
+
 async function fetchMatches() {
+  const CACHE_KEY = 'fcm_csv_matches';
+  const cached = cacheGet(CACHE_KEY, 5 * 60 * 1000);
+  if (cached) return rowsToMatches(parseCSV(cached));
   const res = await fetch(CSV_URL);
   if (!res.ok) throw new Error(`Sheet request failed (${res.status})`);
   const text = await res.text();
+  cacheSet(CACHE_KEY, text);
   return rowsToMatches(parseCSV(text));
 }
 
@@ -212,9 +232,13 @@ function rowsToPlayers(rows) {
 }
 
 async function fetchPlayers() {
+  const CACHE_KEY = 'fcm_csv_players';
+  const cached = cacheGet(CACHE_KEY, 5 * 60 * 1000);
+  if (cached) return rowsToPlayers(parseCSV(cached));
   const res = await fetch(PLAYERS_CSV_URL);
   if (!res.ok) throw new Error(`Sheet request failed (${res.status})`);
   const text = await res.text();
+  cacheSet(CACHE_KEY, text);
   return rowsToPlayers(parseCSV(text));
 }
 
@@ -251,9 +275,13 @@ function rowsToTeams(rows) {
 }
 
 async function fetchTeams() {
+  const CACHE_KEY = 'fcm_csv_teams';
+  const cached = cacheGet(CACHE_KEY, 5 * 60 * 1000);
+  if (cached) return rowsToTeams(parseCSV(cached));
   const res = await fetch(TEAMS_CSV_URL);
   if (!res.ok) throw new Error(`Sheet request failed (${res.status})`);
   const text = await res.text();
+  cacheSet(CACHE_KEY, text);
   return rowsToTeams(parseCSV(text));
 }
 
@@ -1105,7 +1133,110 @@ function renderTeamProfile(teams, players, matches) {
 // =========================================================
 // INIT — detect which page we're on by its DOM, then render
 // =========================================================
+function initBottomNav() {
+  const pages = [
+    {
+      label: 'Home', href: 'index.html',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg>`,
+    },
+    {
+      label: 'Matches', href: 'matches.html',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+    },
+    {
+      label: 'Stats', href: 'stats.html',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>`,
+    },
+    {
+      label: 'Roster', href: 'roster.html',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>`,
+    },
+    {
+      label: 'Rankings', href: 'rankings.html',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 21v-4"/><path d="M17 3l-5 5-5-5"/><rect x="4" y="8" width="16" height="9" rx="2"/></svg>`,
+    },
+  ];
+
+  const nav = document.createElement('div');
+  nav.id = 'bottom-nav';
+
+  const pill = document.createElement('div');
+  pill.id = 'bottom-nav-pill';
+  nav.appendChild(pill);
+
+  const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+
+  const items = pages.map(p => {
+    const a = document.createElement('a');
+    a.className = 'bn-item';
+    a.href = p.href;
+    a.innerHTML = p.icon + `<span>${p.label}</span>`;
+    if (p.href === currentFile || (currentFile === '' && p.href === 'index.html')) {
+      a.classList.add('is-active');
+    }
+    nav.appendChild(a);
+    return a;
+  });
+
+  document.body.appendChild(nav);
+
+  function movePill(el) {
+    const navRect = nav.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    pill.style.left = (elRect.left - navRect.left) + 'px';
+    pill.style.width = elRect.width + 'px';
+  }
+
+  const activeItem = nav.querySelector('.bn-item.is-active');
+  if (activeItem) {
+    pill.style.transition = 'none';
+    requestAnimationFrame(() => {
+      movePill(activeItem);
+      requestAnimationFrame(() => { pill.style.transition = ''; });
+    });
+  }
+
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      items.forEach(i => i.classList.remove('is-active'));
+      item.classList.add('is-active');
+      movePill(item);
+    });
+  });
+}
+
+function initTransitions() {
+  const bar = document.createElement('div');
+  bar.id = 'flash-bar';
+  document.body.appendChild(bar);
+
+  document.body.classList.add('page-entering');
+
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href]');
+    if (!a) return;
+
+    const href = a.getAttribute('href');
+    if (
+      !href ||
+      href.startsWith('#') ||
+      href.startsWith('http') ||
+      href.startsWith('mailto') ||
+      href.startsWith('javascript') ||
+      a.target === '_blank'
+    ) return;
+
+    e.preventDefault();
+    bar.classList.add('is-active');
+    document.body.classList.add('page-exiting');
+
+    setTimeout(() => { window.location.href = href; }, 260);
+  });
+}
+
 async function init() {
+  initTransitions();
+  initBottomNav();
   const isHome = document.getElementById('recent-matches');
   const isMatchesPage = document.getElementById('matches-tbody');
   const isStatsPage = document.getElementById('chart-winrate');
