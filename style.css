@@ -2085,14 +2085,14 @@ body.page-exiting {
   z-index: 0;
   background:
     linear-gradient(to right,
-      rgba(var(--home-c), 0.35) 0%,
-      rgba(var(--home-c), 0.12) 28%,
-      transparent 50%
+      rgb(var(--home-c) / 0.9) 0%,
+      rgb(var(--home-c) / 0.4) 25%,
+      transparent 52%
     ),
     linear-gradient(to left,
-      rgba(var(--away-c), 0.35) 0%,
-      rgba(var(--away-c), 0.12) 28%,
-      transparent 50%
+      rgb(var(--away-c) / 0.9) 0%,
+      rgb(var(--away-c) / 0.4) 25%,
+      transparent 52%
     );
 }
 .match-logo {
@@ -2138,8 +2138,8 @@ body.page-exiting {
   z-index: 0;
   background: radial-gradient(
     ellipse 120% 100% at 50% 110%,
-    rgba(var(--ink-c), 0.30) 0%,
-    rgba(var(--ink-c), 0.10) 45%,
+    rgb(var(--ink-c) / 0.35) 0%,
+    rgb(var(--ink-c) / 0.12) 45%,
     transparent 70%
   );
 }
@@ -2176,9 +2176,9 @@ tr[style*="--ink-c"] {
   z-index: 0;
   background: linear-gradient(
     to right,
-    rgba(var(--ink-c), 0.18) 0%,
-    rgba(var(--ink-c), 0.06) 30%,
-    transparent 60%
+    rgb(var(--ink-c) / 0.25) 0%,
+    rgb(var(--ink-c) / 0.08) 35%,
+    transparent 65%
   );
 }
 .rankings-rank {
