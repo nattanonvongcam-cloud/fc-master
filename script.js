@@ -84,6 +84,18 @@ function getOurSide(match) {
   return { score: match.scoreFor, against: match.scoreAgainst };
 }
 
+const ORG_LOGO_FALLBACK = 'https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=80&quality=lossless';
+
+function getOurSideInfo(match) {
+  if (isOrgTeam(match.homeTeam)) {
+    return { name: match.homeTeam || 'FC Master', logo: match.homeLogo || ORG_LOGO_FALLBACK };
+  }
+  if (isOrgTeam(match.awayTeam)) {
+    return { name: match.awayTeam || 'FC Master', logo: match.awayLogo || ORG_LOGO_FALLBACK };
+  }
+  return { name: match.homeTeam || 'FC Master', logo: match.homeLogo || ORG_LOGO_FALLBACK };
+}
+
 // Turns raw CSV rows into match objects, skipping anything
 // without a usable date (e.g. stray blank rows).
 function rowsToMatches(rows) {
@@ -292,6 +304,7 @@ function renderHome(matches) {
     } else {
       const m = matches[0];
       const opponent = getOpponentSide(m);
+      const ours = getOurSideInfo(m);
       const opponentCrest = opponent.logo
         ? `<img class="team-crest" src="${escapeHTML(opponent.logo)}" alt="${escapeHTML(opponent.name)} logo">`
         : `<div class="team-crest"></div>`;
@@ -299,8 +312,8 @@ function renderHome(matches) {
       latestEl.innerHTML = `
         <div class="latest-match">
           <div class="latest-match__side">
-            <img class="team-crest" src="https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=80&quality=lossless" alt="FC Master logo">
-            <span class="latest-match__name">FC Master</span>
+            <img class="team-crest" src="${escapeHTML(ours.logo)}" alt="${escapeHTML(ours.name)} logo">
+            <span class="latest-match__name">${escapeHTML(ours.name)}</span>
           </div>
           <div class="latest-match__score">
             <span>${m.scoreFor}</span>
