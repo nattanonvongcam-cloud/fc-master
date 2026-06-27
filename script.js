@@ -17,13 +17,7 @@ const TEAMS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/t
 
 // Fallback avatar shown when a player has no Avatar URL in the sheet.
 const DEFAULT_AVATAR = '';
-
-// Opponent crest images, keyed by exact Opponent name as it appears
-// in the sheet. Add more entries here as you get more team logos —
-// any opponent not listed just falls back to the plain placeholder box.
-const OPPONENT_LOGOS = {
-  'Eclipse': 'https://i.ibb.co/Zzd6LCC8/png-clipart-empty-set-null-set-null-sign-mathematics-mathematics-angle-logo-thumbnail.png',
-};
+const ORG_TEAMS = ['main', 'fc master', 'eclipse', 'rising'];
 
 // ---- CSV PARSING --------------------------------------------
 // Minimal RFC4180-ish parser: handles quoted fields, commas
@@ -59,6 +53,37 @@ function normalizeHeader(h) {
   return h.trim().toLowerCase().replace(/\s+/g, '');
 }
 
+function normalizeTeamValue(value) {
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, '');
+}
+
+function isOrgTeam(value) {
+  return ORG_TEAMS.some(team => normalizeTeamValue(team) === normalizeTeamValue(value));
+}
+
+function getOpponentSide(match) {
+  const homeIsOrg = isOrgTeam(match.homeTeam);
+  const awayIsOrg = isOrgTeam(match.awayTeam);
+
+  if (homeIsOrg && !awayIsOrg) {
+    return { name: match.awayTeam || 'Unknown', logo: match.awayLogo || '' };
+  }
+  if (awayIsOrg && !homeIsOrg) {
+    return { name: match.homeTeam || 'Unknown', logo: match.homeLogo || '' };
+  }
+  return { name: match.awayTeam || match.homeTeam || 'Unknown', logo: match.awayLogo || match.homeLogo || '' };
+}
+
+function getOurSide(match) {
+  if (isOrgTeam(match.homeTeam)) {
+    return { score: match.scoreFor, against: match.scoreAgainst };
+  }
+  if (isOrgTeam(match.awayTeam)) {
+    return { score: match.scoreAgainst, against: match.scoreFor };
+  }
+  return { score: match.scoreFor, against: match.scoreAgainst };
+}
+
 // Turns raw CSV rows into match objects, skipping anything
 // without a usable date (e.g. stray blank rows).
 function rowsToMatches(rows) {
@@ -66,13 +91,14 @@ function rowsToMatches(rows) {
   const headers = rows[0].map(normalizeHeader);
   const idx = {
     date: headers.indexOf('date'),
-    opponent: headers.indexOf('opponent'),
+    homeTeam: headers.indexOf('hometeam'),
+    awayTeam: headers.indexOf('awayteam'),
     scoreFor: headers.indexOf('scorefor'),
     scoreAgainst: headers.indexOf('scoreagainst'),
     tournament: headers.indexOf('tournament'),
     mvp: headers.indexOf('mvp'),
-    teamId: headers.indexOf('teamid'),
-    opponentLogo: headers.indexOf('opponentlogo'),
+    homeLogo: headers.indexOf('homelogo'),
+    awayLogo: headers.indexOf('awaylogo'),
   };
 
   const matches = [];
@@ -88,23 +114,27 @@ function rowsToMatches(rows) {
     const scoreAgainst = parseInt(cells[idx.scoreAgainst], 10);
     if (isNaN(scoreFor) || isNaN(scoreAgainst)) continue;
 
-    const opponent = (cells[idx.opponent] || '').trim() || 'Unknown';
-    const opponentLogo = (idx.opponentLogo >= 0 ? (cells[idx.opponentLogo] || '') : '').trim();
+    const homeTeam = (cells[idx.homeTeam] || '').trim() || 'Unknown';
+    const awayTeam = (cells[idx.awayTeam] || '').trim() || 'Unknown';
+    const homeLogo = (idx.homeLogo >= 0 ? (cells[idx.homeLogo] || '') : '').trim();
+    const awayLogo = (idx.awayLogo >= 0 ? (cells[idx.awayLogo] || '') : '').trim();
+    const ourSide = getOurSide({ homeTeam, awayTeam, scoreFor, scoreAgainst });
 
     let result = 'DRAW';
-    if (scoreFor > scoreAgainst) result = 'WIN';
-    else if (scoreFor < scoreAgainst) result = 'LOSS';
+    if (ourSide.score > ourSide.against) result = 'WIN';
+    else if (ourSide.score < ourSide.against) result = 'LOSS';
 
     matches.push({
       date: dateObj,
       dateRaw,
-      opponent,
-      opponentLogo,
+      homeTeam,
+      awayTeam,
+      homeLogo,
+      awayLogo,
       scoreFor,
       scoreAgainst,
       tournament: (cells[idx.tournament] || '').trim() || 'Friendly',
       mvp: (cells[idx.mvp] || '').trim(),
-      teamId: (idx.teamId >= 0 ? (cells[idx.teamId] || '') : '').trim() || 'main',
       result,
     });
   }
@@ -261,9 +291,9 @@ function renderHome(matches) {
       latestEl.innerHTML = emptyState('No matches yet. Add a row to the Matches sheet to see it here.');
     } else {
       const m = matches[0];
-      const opponentLogo = m.opponentLogo || OPPONENT_LOGOS[m.opponent] || '';
-      const opponentCrest = opponentLogo
-        ? `<img class="team-crest" src="${escapeHTML(opponentLogo)}" alt="${escapeHTML(m.opponent)} logo">`
+      const opponent = getOpponentSide(m);
+      const opponentCrest = opponent.logo
+        ? `<img class="team-crest" src="${escapeHTML(opponent.logo)}" alt="${escapeHTML(opponent.name)} logo">`
         : `<div class="team-crest"></div>`;
 
       latestEl.innerHTML = `
@@ -279,7 +309,7 @@ function renderHome(matches) {
           </div>
           <div class="latest-match__side">
             ${opponentCrest}
-            <span class="latest-match__name">${escapeHTML(m.opponent)}</span>
+            <span class="latest-match__name">${escapeHTML(opponent.name)}</span>
           </div>
         </div>
         <div class="latest-match__meta">
@@ -296,16 +326,19 @@ function renderHome(matches) {
     if (recent.length === 0) {
       recentEl.innerHTML = emptyState('No recent matches to show yet.');
     } else {
-      recentEl.innerHTML = recent.map(m => `
-        <div class="panel match-card-mini">
-          <div class="match-card-mini__top">
-            <span class="match-card-mini__opponent">vs ${escapeHTML(m.opponent)}</span>
-            ${badgeFor(m.result)}
+      recentEl.innerHTML = recent.map(m => {
+        const opponent = getOpponentSide(m);
+        return `
+          <div class="panel match-card-mini">
+            <div class="match-card-mini__top">
+              <span class="match-card-mini__opponent">vs ${escapeHTML(opponent.name)}</span>
+              ${badgeFor(m.result)}
+            </div>
+            <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
+            <span class="match-card-mini__date">${formatDate(m.date)}</span>
           </div>
-          <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
-          <span class="match-card-mini__date">${formatDate(m.date)}</span>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
   }
 }
@@ -350,16 +383,19 @@ function renderMatchesTable() {
     return;
   }
 
-  tbody.innerHTML = filtered.map(m => `
+  tbody.innerHTML = filtered.map(m => {
+    const opponent = getOpponentSide(m);
+    return `
     <tr>
       <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
-      <td data-label="Opponent">vs ${escapeHTML(m.opponent)}</td>
+      <td data-label="Opponent">vs ${escapeHTML(opponent.name)}</td>
       <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
       <td data-label="Result">${badgeFor(m.result)}</td>
       <td data-label="Tournament"><span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span></td>
       <td data-label="MVP" class="cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function setupFilterBar() {
@@ -682,24 +718,47 @@ function computeStandings(teams, matches) {
     pts: 0,
   }));
 
+  const byKey = new Map(standings.map(team => [normalizeTeamValue(team.teamId || team.name), team]));
+
   matches.forEach(match => {
-    const teamId = (match.teamId || 'main').trim().toLowerCase();
-    const standing = standings.find(s => (s.teamId || '').trim().toLowerCase() === teamId);
-    if (!standing) return;
+    const homeKey = normalizeTeamValue(match.homeTeam);
+    const awayKey = normalizeTeamValue(match.awayTeam);
 
-    standing.mp += 1;
-    standing.gf += match.scoreFor;
-    standing.ga += match.scoreAgainst;
-    standing.gd = standing.gf - standing.ga;
+    const homeStanding = byKey.get(homeKey);
+    const awayStanding = byKey.get(awayKey);
 
-    if (match.result === 'WIN') {
-      standing.w += 1;
-      standing.pts += 3;
-    } else if (match.result === 'DRAW') {
-      standing.d += 1;
-      standing.pts += 1;
-    } else {
-      standing.l += 1;
+    if (homeStanding) {
+      homeStanding.mp += 1;
+      homeStanding.gf += match.scoreFor;
+      homeStanding.ga += match.scoreAgainst;
+      homeStanding.gd = homeStanding.gf - homeStanding.ga;
+
+      if (match.scoreFor > match.scoreAgainst) {
+        homeStanding.w += 1;
+        homeStanding.pts += 3;
+      } else if (match.scoreFor < match.scoreAgainst) {
+        homeStanding.l += 1;
+      } else {
+        homeStanding.d += 1;
+        homeStanding.pts += 1;
+      }
+    }
+
+    if (awayStanding) {
+      awayStanding.mp += 1;
+      awayStanding.gf += match.scoreAgainst;
+      awayStanding.ga += match.scoreFor;
+      awayStanding.gd = awayStanding.gf - awayStanding.ga;
+
+      if (match.scoreAgainst > match.scoreFor) {
+        awayStanding.w += 1;
+        awayStanding.pts += 3;
+      } else if (match.scoreAgainst < match.scoreFor) {
+        awayStanding.l += 1;
+      } else {
+        awayStanding.d += 1;
+        awayStanding.pts += 1;
+      }
     }
   });
 
@@ -811,16 +870,19 @@ function renderPlayerProfile(players, matches) {
     if (mvpMatches.length === 0) {
       mvpSection.innerHTML = emptyState('No recorded MVP matches yet.');
     } else {
-      mvpSection.innerHTML = mvpMatches.slice(0, 6).map(m => `
-        <div class="panel match-card-mini">
-          <div class="match-card-mini__top">
-            <span class="match-card-mini__opponent">vs ${escapeHTML(m.opponent)}</span>
-            ${badgeFor(m.result)}
+      mvpSection.innerHTML = mvpMatches.slice(0, 6).map(m => {
+        const opponent = getOpponentSide(m);
+        return `
+          <div class="panel match-card-mini">
+            <div class="match-card-mini__top">
+              <span class="match-card-mini__opponent">vs ${escapeHTML(opponent.name)}</span>
+              ${badgeFor(m.result)}
+            </div>
+            <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
+            <span class="match-card-mini__date">${formatDate(m.date)}</span>
           </div>
-          <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
-          <span class="match-card-mini__date">${formatDate(m.date)}</span>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
   }
 }
@@ -865,7 +927,11 @@ function renderTeamProfile(teams, players, matches) {
     </div>
   `;
 
-  const teamMatches = matches.filter(m => (m.teamId || 'main').toLowerCase() === requested);
+  const teamMatches = matches.filter(m => {
+    const home = normalizeTeamValue(m.homeTeam);
+    const away = normalizeTeamValue(m.awayTeam);
+    return home === requested || away === requested;
+  });
   const stats = computeStats(teamMatches);
 
   if (statGrid) {
@@ -897,16 +963,19 @@ function renderTeamProfile(teams, players, matches) {
     if (teamMatches.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6">${emptyState('No matches for this team yet.')}</td></tr>`;
     } else {
-      tbody.innerHTML = teamMatches.map(m => `
-        <tr>
-          <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
-          <td data-label="Opponent">vs ${escapeHTML(m.opponent)}</td>
-          <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
-          <td data-label="Result">${badgeFor(m.result)}</td>
-          <td data-label="Tournament"><span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span></td>
-          <td data-label="MVP" class="cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = teamMatches.map(m => {
+        const opponent = getOpponentSide(m);
+        return `
+          <tr>
+            <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
+            <td data-label="Opponent">vs ${escapeHTML(opponent.name)}</td>
+            <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
+            <td data-label="Result">${badgeFor(m.result)}</td>
+            <td data-label="Tournament"><span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span></td>
+            <td data-label="MVP" class="cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</td>
+          </tr>
+        `;
+      }).join('');
     }
   }
 
