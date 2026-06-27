@@ -2190,16 +2190,77 @@ tr[style*="--ink-c"] td {
   z-index: 1;
 }
 
+/* Subtle variant for small/mini cards */
+.match-ink--subtle {
+  background:
+    linear-gradient(to right,
+      rgb(var(--home-c) / 0.45) 0%,
+      rgb(var(--home-c) / 0.15) 30%,
+      transparent 55%
+    ),
+    linear-gradient(to left,
+      rgb(var(--away-c) / 0.45) 0%,
+      rgb(var(--away-c) / 0.15) 30%,
+      transparent 55%
+    );
+}
+
+/* Small logo for mini cards */
+.match-logo--sm {
+  width: 90px;
+  height: 90px;
+}
+
+/* Match history table rows */
+tr[style*="--home-c"] {
+  position: relative;
+}
+.row-ink--match {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(to right,
+      rgb(var(--home-c) / 0.12) 0%,
+      rgb(var(--home-c) / 0.04) 25%,
+      transparent 50%
+    ),
+    linear-gradient(to left,
+      rgb(var(--away-c) / 0.12) 0%,
+      rgb(var(--away-c) / 0.04) 25%,
+      transparent 50%
+    );
+}
+tr[style*="--home-c"] td {
+  position: relative;
+  z-index: 1;
+}
+
+/* Match card-vs ink */
+.match-card-vs {
+  position: relative;
+  overflow: hidden;
+}
+.match-card-vs > *:not(.match-ink) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Footer credit visibility fix */
+.site-footer {
+  padding-bottom: 80px;
+}
 .footer-credit-strip {
   border-top: 1px solid var(--border-line);
-  padding: 10px 0 6px;
+  padding: 12px 0 8px;
   text-align: center;
 }
 .footer-credit {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.05em;
-  color: var(--text-faint);
+  color: var(--text-secondary);
 }
 .footer-credit__name {
   color: var(--accent-blue-bright);
