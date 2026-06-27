@@ -452,9 +452,17 @@ function renderHome(allMatches, teams) {
             <span class="latest-match__name">${escapeHTML(m.homeTeam)}</span>
           </div>
           <div class="latest-match__score">
-            <span>${m.scoreFor}</span>
+            <div class="score-side score-side--home">
+              ${String(m.scoreFor).split('').map((d, i, arr) =>
+                `<span class="score-digit" style="font-size:${1.2 - (i / arr.length) * 0.35}em">${d}</span>`
+              ).join('')}
+            </div>
             <span class="latest-match__divider">&ndash;</span>
-            <span>${m.scoreAgainst}</span>
+            <div class="score-side score-side--away">
+              ${String(m.scoreAgainst).split('').reverse().map((d, i, arr) =>
+                `<span class="score-digit" style="font-size:${1.2 - (i / arr.length) * 0.35}em">${d}</span>`
+              ).reverse().join('')}
+            </div>
           </div>
           <div class="latest-match__side">
             ${awayCrest}

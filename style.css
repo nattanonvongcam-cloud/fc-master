@@ -1155,6 +1155,25 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--text-primary);
   text-shadow: 0 0 32px var(--accent-glow-soft);
 }
+.score-side {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+}
+.score-side--home {
+  flex-direction: row;
+}
+.score-side--away {
+  flex-direction: row;
+}
+.score-digit {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--text-primary);
+  text-shadow: 0 0 32px var(--accent-glow-soft);
+}
 .team-crest {
   width: 60px;
   height: 60px;
@@ -1932,25 +1951,6 @@ tbody tr:hover {
   color: var(--text-faint);
   margin: 0;
 }
-.footer-credit-strip {
-  border-top: 1px solid var(--border-line);
-  padding: 10px 0;
-  text-align: center;
-}
-
-.footer-credit {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
-.footer-credit__name {
-  color: var(--accent-blue-bright);
-  font-weight: 700;
-  text-shadow: 0 0 10px var(--accent-glow-soft);
-}
 
 /* ---- PAGE TRANSITIONS ---- */
 
@@ -2188,4 +2188,19 @@ tr[style*="--ink-c"] {
 tr[style*="--ink-c"] td {
   position: relative;
   z-index: 1;
+}
+
+.footer-credit-strip {
+  border-top: 1px solid var(--border-line);
+  padding: 10px 0 6px;
+  text-align: center;
+}
+.footer-credit {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+.footer-credit__name {
+  color: var(--accent-blue-bright);
 }
