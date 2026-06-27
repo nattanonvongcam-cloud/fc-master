@@ -722,12 +722,33 @@ function chartCanvasWrap(canvasId) {
 
 function showChartMessage(canvasId, msg) {
   const wrap = chartCanvasWrap(canvasId);
-  if (wrap) wrap.innerHTML = emptyState(msg);
+  if (!wrap) return;
+  let overlay = wrap.querySelector('.chart-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'chart-overlay state-message';
+    overlay.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;pointer-events:none;';
+    wrap.style.position = 'relative';
+    wrap.appendChild(overlay);
+  }
+  overlay.textContent = msg;
+  overlay.style.display = 'flex';
+  const canvas = wrap.querySelector('canvas');
+  if (canvas) canvas.style.visibility = 'hidden';
 }
 
 let CHART_INSTANCES = [];
 
 function renderCharts(matches) {
+  ['chart-winrate', 'chart-breakdown', 'chart-goals'].forEach(id => {
+    const canvas = document.getElementById(id);
+    if (canvas) {
+      canvas.style.visibility = '';
+      const overlay = canvas.closest('.chart-canvas-wrap')?.querySelector('.chart-overlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+  });
+
   CHART_INSTANCES.forEach(c => c.destroy());
   CHART_INSTANCES = [];
 
