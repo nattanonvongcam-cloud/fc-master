@@ -2071,82 +2071,121 @@ body.page-exiting {
   .site-footer { margin-bottom: 90px; }
 }
 
-/* ===== LOGO WATERMARKS ===== */
+/* ===== INK WASH EFFECTS ===== */
 
-/* Latest Match card watermarks */
+/* --- Latest Match card --- */
 .latest-match {
   position: relative;
   overflow: hidden;
 }
-.match-wm {
+.match-ink {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(to right,
+      rgba(var(--home-c), 0.35) 0%,
+      rgba(var(--home-c), 0.12) 28%,
+      transparent 50%
+    ),
+    linear-gradient(to left,
+      rgba(var(--away-c), 0.35) 0%,
+      rgba(var(--away-c), 0.12) 28%,
+      transparent 50%
+    );
+}
+.match-logo {
   position: absolute;
   top: 50%;
-  width: 160px;
-  height: 160px;
   transform: translateY(-50%);
+  width: 190px;
+  height: 190px;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  opacity: 0.20;
-  mix-blend-mode: screen;
-  filter: contrast(1.1) blur(0.3px);
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
-.match-wm--home {
-  left: -16px;
-}
-.match-wm--away {
-  right: -16px;
-}
-
-/* Player card watermark */
-.player-card {
-  position: relative;
-  overflow: hidden;
-}
-.player-wm {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120px;
-  height: 120px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: 0.18;
-  mix-blend-mode: screen;
-  filter: contrast(1.1) blur(0.3px);
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-.player-card:hover .player-wm {
-  opacity: 0.30;
-}
-
-/* Rankings row watermark */
-.rankings-rank {
-  position: relative;
-  overflow: visible;
-}
-.rankings-wm {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 56px;
-  height: 56px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: 0.15;
-  mix-blend-mode: screen;
-  filter: contrast(1.1) blur(0.3px);
   pointer-events: none;
   z-index: 0;
 }
-.rankings-rank > *:not(.rankings-wm) {
+.match-logo--home {
+  left: 8px;
+  opacity: 0.5;
+  -webkit-mask-image: linear-gradient(to right, black 0%, black 35%, transparent 100%);
+  mask-image: linear-gradient(to right, black 0%, black 35%, transparent 100%);
+}
+.match-logo--away {
+  right: 8px;
+  opacity: 0.5;
+  -webkit-mask-image: linear-gradient(to left, black 0%, black 35%, transparent 100%);
+  mask-image: linear-gradient(to left, black 0%, black 35%, transparent 100%);
+}
+.latest-match__side,
+.latest-match__score {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Player cards & feature cards (roster, rankings hero) --- */
+.player-card,
+.feature-card {
+  position: relative;
+  overflow: hidden;
+}
+.ink-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 120% 100% at 50% 110%,
+    rgba(var(--ink-c), 0.30) 0%,
+    rgba(var(--ink-c), 0.10) 45%,
+    transparent 70%
+  );
+}
+.card-logo-bg {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 140px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.18;
+  -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 75%);
+  mask-image: linear-gradient(to top, black 0%, black 25%, transparent 75%);
+}
+.player-card > *:not(.ink-wash):not(.card-logo-bg),
+.feature-card > *:not(.ink-wash):not(.card-logo-bg) {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Rankings table rows --- */
+tr[style*="--ink-c"] {
+  position: relative;
+}
+.row-ink {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    to right,
+    rgba(var(--ink-c), 0.18) 0%,
+    rgba(var(--ink-c), 0.06) 30%,
+    transparent 60%
+  );
+}
+.rankings-rank {
+  position: relative;
+}
+.rankings-rank > *,
+tr[style*="--ink-c"] td {
   position: relative;
   z-index: 1;
 }

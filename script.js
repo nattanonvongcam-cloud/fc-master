@@ -431,10 +431,22 @@ function renderHome(allMatches, teams) {
         ? `<img class="team-crest" src="${escapeHTML(m.awayLogo)}" alt="${escapeHTML(m.awayTeam)} logo">`
         : `<div class="team-crest"></div>`;
 
+      const homeTeamObj = teams.find(t =>
+        normalizeTeamValue(t.name) === normalizeTeamValue(m.homeTeam) ||
+        normalizeTeamValue(t.teamId) === normalizeTeamValue(m.homeTeam)
+      );
+      const awayTeamObj = teams.find(t =>
+        normalizeTeamValue(t.name) === normalizeTeamValue(m.awayTeam) ||
+        normalizeTeamValue(t.teamId) === normalizeTeamValue(m.awayTeam)
+      );
+      const homeColor = teamColorRgb(homeTeamObj);
+      const awayColor = teamColorRgb(awayTeamObj);
+
       latestEl.innerHTML = `
-        <div class="latest-match">
-          ${m.homeLogo ? `<div class="match-wm match-wm--home" style="background-image:url('${escapeHTML(m.homeLogo)}')"></div>` : ''}
-          ${m.awayLogo ? `<div class="match-wm match-wm--away" style="background-image:url('${escapeHTML(m.awayLogo)}')"></div>` : ''}
+        <div class="latest-match" style="--home-c:${homeColor};--away-c:${awayColor}">
+          <div class="match-ink" aria-hidden="true"></div>
+          ${m.homeLogo ? `<div class="match-logo match-logo--home" style="background-image:url('${escapeHTML(m.homeLogo)}')"></div>` : ''}
+          ${m.awayLogo ? `<div class="match-logo match-logo--away" style="background-image:url('${escapeHTML(m.awayLogo)}')"></div>` : ''}
           <div class="latest-match__side">
             ${homeCrest}
             <span class="latest-match__name">${escapeHTML(m.homeTeam)}</span>
@@ -1007,10 +1019,12 @@ function renderRoster(players, teams) {
   }
 
   const teamLogoMap = Object.fromEntries(teams.map(t => [t.name, t.logo || '']));
+  const teamColorMap = Object.fromEntries(teams.map(t => [t.name, teamColorRgb(t)]));
 
   grid.innerHTML = players.map((p, i) => `
     <a class="panel player-card animate-in" href="${playerLink(p)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(findTeamForPlayer(teams, p.team))}">
-      ${teamLogoMap[p.team] ? `<div class="player-wm" style="background-image:url('${escapeHTML(teamLogoMap[p.team])}')"></div>` : ''}
+      <div class="ink-wash" style="--ink-c:${teamColorMap[p.team] || '61,123,255'}"></div>
+      ${teamLogoMap[p.team] ? `<div class="card-logo-bg" style="background-image:url('${escapeHTML(teamLogoMap[p.team])}')"></div>` : ''}
       ${avatarMarkup(p, 'player-card__avatar')}
       <span class="player-card__name">${escapeHTML(p.name)}</span>
       <span class="player-card__role">${escapeHTML(p.role)}</span>
@@ -1145,6 +1159,8 @@ function renderRankingsHero(standings, teams) {
   card.style.cssText = `--team-c: ${colorRgb};`;
   card.innerHTML = `
     <div class="feature-card__accent"></div>
+    <div class="ink-wash" style="--ink-c:${colorRgb}"></div>
+    ${leader.logo ? `<div class="card-logo-bg" style="background-image:url('${escapeHTML(leader.logo)}')"></div>` : ''}
     <div class="feature-card__eyebrow">🏆 Current Leader</div>
     <div class="feature-card__main">
       ${crest}
@@ -1176,9 +1192,9 @@ function renderRankings(teams, matches) {
       : `<div class="rankings-crest rankings-crest--fallback">${escapeHTML(initials(team.name))}</div>`;
 
     return `
-      <tr class="row-anim" style="animation-delay:${index * 0.05}s" data-logo="${escapeHTML(team.logo || '')}">
+      <tr class="row-anim" style="animation-delay:${index * 0.05}s;--ink-c:${teamColorRgb(teams.find(t => normalizeTeamValue(t.name) === normalizeTeamValue(team.name)) || null)}">
         <td data-label="#" class="rankings-rank">
-          <div class="rankings-wm" style="background-image:url('${escapeHTML(team.logo || '')}')"></div>
+          <div class="row-ink" aria-hidden="true"></div>
           ${escapeHTML(rankDisplay)}
         </td>
         <td data-label="Team">
