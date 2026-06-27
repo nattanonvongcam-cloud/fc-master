@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="page-home">
 
 <header class="site-header">
   <div class="container">
@@ -29,96 +29,163 @@
       <a href="rankings.html" class="nav-link">Rankings</a>
     </nav>
     <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">
-      <!-- discord icon -->
       Join Discord
     </a>
   </div>
 </header>
 
 <section class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hero-bg__image"></div>
+    <div class="hero-bg__grid"></div>
+    <div class="hero-bg__vignette"></div>
+  </div>
   <div class="hero-glow" aria-hidden="true"></div>
+  <div class="hero-glow hero-glow--secondary" aria-hidden="true"></div>
+
   <div class="container hero-inner">
     <div class="hero-content">
-      <p class="hero-tag">Bluelock Rivals &middot; Competitive Community</p>
-      <h1 class="hero-title">FC MASTER</h1>
-      <p class="hero-subtitle">Scrims. Stats. Standings.</p>
+      <div class="hero-badge">
+        <span class="hero-badge__dot"></span>
+        Bluelock Rivals &middot; Competitive Community
+      </div>
+      <div class="hero-identity">
+        <img class="hero-crest" src="https://cdn.discordapp.com/icons/1453560675459924280/046e677ec699f821ec7f6a9abeb33d69.webp?size=128&amp;quality=lossless" alt="">
+        <h1 class="hero-title">
+          <span class="hero-title__line">FC</span>
+          <span class="hero-title__line hero-title__line--accent">MASTER</span>
+        </h1>
+      </div>
+      <p class="hero-subtitle">The premier Bluelock Rivals org. Scrims, stats, and standings — all in one place.</p>
       <div class="hero-actions">
-        <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">Join Our Discord</a>
-        <span class="hero-members">500+ Members</span>
+        <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary btn-lg" target="_blank" rel="noopener">Join Our Discord</a>
+        <a href="matches.html" class="btn btn-ghost btn-lg">View Matches</a>
       </div>
-      <div class="hero-highlights">
-        <span class="hero-highlight">Live scrims</span>
-        <span class="hero-highlight">Weekly standouts</span>
-        <span class="hero-highlight">Discord-first</span>
+      <div class="hero-metrics">
+        <div class="hero-metric">
+          <span class="hero-metric__value">500+</span>
+          <span class="hero-metric__label">Members</span>
+        </div>
+        <div class="hero-metric__divider" aria-hidden="true"></div>
+        <div class="hero-metric">
+          <span class="hero-metric__value">Live</span>
+          <span class="hero-metric__label">Weekly Scrims</span>
+        </div>
+        <div class="hero-metric__divider" aria-hidden="true"></div>
+        <div class="hero-metric">
+          <span class="hero-metric__value">Discord</span>
+          <span class="hero-metric__label">First Community</span>
+        </div>
       </div>
     </div>
-    <div class="hero-side">
-      <div class="hero-side__panel">
-        <p class="hero-side__eyebrow">Current form</p>
-        <div class="hero-side__score">9-2-1</div>
-        <p class="hero-side__meta">Season record • 4-match streak</p>
+
+    <aside class="hero-aside">
+      <div class="hero-aside__panel">
+        <div class="hero-aside__header">
+          <span class="hero-aside__tag">Season Form</span>
+          <span class="hero-aside__live">Active</span>
+        </div>
+        <div class="hero-aside__record">9<span class="hero-aside__sep">-</span>2<span class="hero-aside__sep">-</span>1</div>
+        <p class="hero-aside__meta">W &middot; D &middot; L &mdash; 4-match win streak</p>
+        <div class="hero-aside__links">
+          <a href="stats.html" class="hero-aside__link">Full Stats &rarr;</a>
+          <a href="rankings.html" class="hero-aside__link">Standings &rarr;</a>
+        </div>
       </div>
-    </div>
+      <div class="hero-aside__strip">
+        <a href="roster.html" class="hero-strip-link">Roster</a>
+        <a href="teams.html" class="hero-strip-link">Teams</a>
+        <a href="rankings.html" class="hero-strip-link">Rankings</a>
+      </div>
+    </aside>
+  </div>
+
+  <div class="hero-scroll" aria-hidden="true">
+    <span class="hero-scroll__line"></span>
   </div>
 </section>
 
-<main>
-  <section class="container">
-    <div class="section-head">
-      <span class="eyebrow">Org Stats</span>
-    </div>
-    <div class="stat-grid">
-      <div class="panel stat-card">
-        <div class="stat-card__head">
-          <span class="stat-card__label">Total Matches</span>
-          <span class="stat-card__pill">Live</span>
+<main class="home-main">
+  <section class="home-stats">
+    <div class="container">
+      <div class="section-head section-head--home">
+        <div class="section-head__text">
+          <span class="eyebrow">Org Stats</span>
+          <p class="section-desc">Live record pulled from every recorded scrim and tournament.</p>
         </div>
-        <span class="stat-card__value skel" id="stat-total">&mdash;</span>
-        <span class="stat-card__sub">All recorded scrims &amp; tournaments</span>
       </div>
-      <div class="panel stat-card">
-        <div class="stat-card__head">
-          <span class="stat-card__label">Wins</span>
-          <span class="stat-card__pill">Form</span>
+
+      <div class="stat-bento">
+        <div class="panel stat-card stat-card--featured">
+          <div class="stat-card__accent stat-card__accent--blue" aria-hidden="true"></div>
+          <div class="stat-card__head">
+            <span class="stat-card__label">Win Rate</span>
+            <span class="stat-card__pill">Peak</span>
+          </div>
+          <span class="stat-card__value stat-card__value--hero skel" id="stat-winrate">&mdash;</span>
+          <span class="stat-card__sub"><span id="stat-draws">&mdash;</span> draws on record</span>
         </div>
-        <span class="stat-card__value stat-card__value--win skel" id="stat-wins">&mdash;</span>
-        <span class="stat-card__sub">Matches won</span>
-      </div>
-      <div class="panel stat-card">
-        <div class="stat-card__head">
-          <span class="stat-card__label">Losses</span>
-          <span class="stat-card__pill">Learn</span>
+
+        <div class="panel stat-card">
+          <div class="stat-card__accent stat-card__accent--neutral" aria-hidden="true"></div>
+          <div class="stat-card__head">
+            <span class="stat-card__label">Total Matches</span>
+            <span class="stat-card__pill">Live</span>
+          </div>
+          <span class="stat-card__value skel" id="stat-total">&mdash;</span>
+          <span class="stat-card__sub">All recorded scrims &amp; tournaments</span>
         </div>
-        <span class="stat-card__value stat-card__value--loss skel" id="stat-losses">&mdash;</span>
-        <span class="stat-card__sub">Matches lost</span>
-      </div>
-      <div class="panel stat-card">
-        <div class="stat-card__head">
-          <span class="stat-card__label">Win Rate</span>
-          <span class="stat-card__pill">Peak</span>
+
+        <div class="panel stat-card stat-card--win">
+          <div class="stat-card__accent stat-card__accent--win" aria-hidden="true"></div>
+          <div class="stat-card__head">
+            <span class="stat-card__label">Wins</span>
+            <span class="stat-card__pill stat-card__pill--win">Form</span>
+          </div>
+          <span class="stat-card__value stat-card__value--win skel" id="stat-wins">&mdash;</span>
+          <span class="stat-card__sub">Matches won</span>
         </div>
-        <span class="stat-card__value skel" id="stat-winrate">&mdash;</span>
-        <span class="stat-card__sub"><span id="stat-draws">&mdash;</span> draws</span>
+
+        <div class="panel stat-card stat-card--loss">
+          <div class="stat-card__accent stat-card__accent--loss" aria-hidden="true"></div>
+          <div class="stat-card__head">
+            <span class="stat-card__label">Losses</span>
+            <span class="stat-card__pill stat-card__pill--loss">Learn</span>
+          </div>
+          <span class="stat-card__value stat-card__value--loss skel" id="stat-losses">&mdash;</span>
+          <span class="stat-card__sub">Matches lost</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="container">
-    <div class="section-head">
-      <span class="eyebrow">Latest Match</span>
-    </div>
-    <div class="panel" id="latest-match">
-      <div class="state-message">Loading latest match&hellip;</div>
+  <section class="home-latest">
+    <div class="container">
+      <div class="section-head section-head--home">
+        <div class="section-head__text">
+          <span class="eyebrow">Latest Match</span>
+          <p class="section-desc">Most recent result from the sheet.</p>
+        </div>
+        <a href="matches.html" class="meta-link">Full history &rarr;</a>
+      </div>
+      <div class="panel panel--spotlight" id="latest-match">
+        <div class="state-message">Loading latest match&hellip;</div>
+      </div>
     </div>
   </section>
 
-  <section class="container">
-    <div class="section-head">
-      <span class="eyebrow">Recent Matches</span>
-      <a href="matches.html" class="meta-link">View full history &rarr;</a>
-    </div>
-    <div class="match-grid" id="recent-matches">
-      <div class="state-message">Loading recent matches&hellip;</div>
+  <section class="home-recent">
+    <div class="container">
+      <div class="section-head section-head--home">
+        <div class="section-head__text">
+          <span class="eyebrow">Recent Matches</span>
+          <p class="section-desc">Last four results at a glance.</p>
+        </div>
+        <a href="matches.html" class="meta-link">View all &rarr;</a>
+      </div>
+      <div class="match-grid" id="recent-matches">
+        <div class="state-message">Loading recent matches&hellip;</div>
+      </div>
     </div>
   </section>
 </main>
