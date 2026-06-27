@@ -38,12 +38,26 @@
 <section class="hero">
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="container hero-inner">
-    <p class="hero-tag">Bluelock Rivals &middot; Competitive Community</p>
-    <h1 class="hero-title">FC MASTER</h1>
-    <p class="hero-subtitle">Scrims. Stats. Standings.</p>
-    <div class="hero-actions">
-      <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">Join Our Discord</a>
-      <span class="hero-members">500+ Members</span>
+    <div class="hero-content">
+      <p class="hero-tag">Bluelock Rivals &middot; Competitive Community</p>
+      <h1 class="hero-title">FC MASTER</h1>
+      <p class="hero-subtitle">Scrims. Stats. Standings.</p>
+      <div class="hero-actions">
+        <a href="https://discord.gg/AJgcQ4gbJ" class="btn btn-primary" target="_blank" rel="noopener">Join Our Discord</a>
+        <span class="hero-members">500+ Members</span>
+      </div>
+      <div class="hero-highlights">
+        <span class="hero-highlight">Live scrims</span>
+        <span class="hero-highlight">Weekly standouts</span>
+        <span class="hero-highlight">Discord-first</span>
+      </div>
+    </div>
+    <div class="hero-side">
+      <div class="hero-side__panel">
+        <p class="hero-side__eyebrow">Current form</p>
+        <div class="hero-side__score">9-2-1</div>
+        <p class="hero-side__meta">Season record • 4-match streak</p>
+      </div>
     </div>
   </div>
 </section>
@@ -55,22 +69,34 @@
     </div>
     <div class="stat-grid">
       <div class="panel stat-card">
-        <span class="stat-card__label">Total Matches</span>
+        <div class="stat-card__head">
+          <span class="stat-card__label">Total Matches</span>
+          <span class="stat-card__pill">Live</span>
+        </div>
         <span class="stat-card__value skel" id="stat-total">&mdash;</span>
         <span class="stat-card__sub">All recorded scrims &amp; tournaments</span>
       </div>
       <div class="panel stat-card">
-        <span class="stat-card__label">Wins</span>
+        <div class="stat-card__head">
+          <span class="stat-card__label">Wins</span>
+          <span class="stat-card__pill">Form</span>
+        </div>
         <span class="stat-card__value stat-card__value--win skel" id="stat-wins">&mdash;</span>
         <span class="stat-card__sub">Matches won</span>
       </div>
       <div class="panel stat-card">
-        <span class="stat-card__label">Losses</span>
+        <div class="stat-card__head">
+          <span class="stat-card__label">Losses</span>
+          <span class="stat-card__pill">Learn</span>
+        </div>
         <span class="stat-card__value stat-card__value--loss skel" id="stat-losses">&mdash;</span>
         <span class="stat-card__sub">Matches lost</span>
       </div>
       <div class="panel stat-card">
-        <span class="stat-card__label">Win Rate</span>
+        <div class="stat-card__head">
+          <span class="stat-card__label">Win Rate</span>
+          <span class="stat-card__pill">Peak</span>
+        </div>
         <span class="stat-card__value skel" id="stat-winrate">&mdash;</span>
         <span class="stat-card__sub"><span id="stat-draws">&mdash;</span> draws</span>
       </div>
