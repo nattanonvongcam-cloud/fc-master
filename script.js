@@ -363,16 +363,75 @@ function errorState(msg) {
 // MATCHES PAGE (match history table + result filter)
 // =========================================================
 let ALL_MATCHES = [];
+let ALL_TEAMS = [];
 let ACTIVE_FILTER = 'ALL';
+let ACTIVE_TEAM_FILTER = 'ALL';
+
+function teamFilterKeys(team) {
+  const keys = new Set();
+  const id = (team.teamId || '').trim();
+  const name = (team.name || '').trim();
+  if (id) keys.add(normalizeTeamValue(id));
+  if (name) keys.add(normalizeTeamValue(name));
+  return keys;
+}
+
+function matchInvolvesTeam(match, team) {
+  const keys = teamFilterKeys(team);
+  const home = normalizeTeamValue(match.homeTeam);
+  const away = normalizeTeamValue(match.awayTeam);
+  return keys.has(home) || keys.has(away);
+}
+
+function getTeamFilteredMatches() {
+  if (ACTIVE_TEAM_FILTER === 'ALL') return ALL_MATCHES;
+  const team = ALL_TEAMS.find(t => (t.teamId || '').trim() === ACTIVE_TEAM_FILTER);
+  if (!team) return ALL_MATCHES;
+  return ALL_MATCHES.filter(m => matchInvolvesTeam(m, team));
+}
+
+function renderTeamFilterBar() {
+  const bar = document.getElementById('team-filter-bar');
+  if (!bar) return;
+
+  if (ALL_TEAMS.length === 0) {
+    bar.innerHTML = '<span class="filter-count">No teams in sheet</span>';
+    return;
+  }
+
+  bar.innerHTML = [
+    '<button type="button" class="filter-btn filter-btn--team is-active" data-team-filter="ALL">All Teams</button>',
+    ...ALL_TEAMS.map(team => {
+      const id = (team.teamId || '').trim();
+      return `<button type="button" class="filter-btn filter-btn--team" data-team-filter="${escapeHTML(id)}">${escapeHTML(team.name)}</button>`;
+    }),
+  ].join('');
+}
+
+function setupTeamFilterBar(onChange) {
+  const bar = document.getElementById('team-filter-bar');
+  if (!bar) return;
+
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-team-filter]');
+    if (!btn) return;
+    ACTIVE_TEAM_FILTER = btn.dataset.teamFilter;
+    bar.querySelectorAll('[data-team-filter]').forEach(b => {
+      b.classList.toggle('is-active', b === btn);
+    });
+    onChange();
+  });
+}
 
 function renderMatchesTable() {
   const tbody = document.getElementById('matches-tbody');
   const countEl = document.getElementById('filter-count');
   if (!tbody) return;
 
+  const teamFiltered = getTeamFilteredMatches();
   const filtered = ACTIVE_FILTER === 'ALL'
-    ? ALL_MATCHES
-    : ALL_MATCHES.filter(m => m.result === ACTIVE_FILTER);
+    ? teamFiltered
+    : teamFiltered.filter(m => m.result === ACTIVE_FILTER);
 
   if (countEl) {
     countEl.textContent = `Showing ${filtered.length} of ${ALL_MATCHES.length} matches`;
@@ -407,6 +466,12 @@ function setupFilterBar() {
       renderMatchesTable();
     });
   });
+}
+
+function renderStatsPage() {
+  const matches = getTeamFilteredMatches();
+  renderStreakStats(matches);
+  renderCharts(matches);
 }
 
 // =========================================================
@@ -1015,7 +1080,7 @@ async function init() {
   const isTeamPage = document.getElementById('team-profile');
   const isRankingsPage = document.getElementById('rankings-root');
   const needsPlayers = isRosterPage || isPlayerPage || isTeamPage;
-  const needsTeams = isTeamsPage || isTeamPage || isRankingsPage;
+  const needsTeams = isTeamsPage || isTeamPage || isRankingsPage || isMatchesPage || isStatsPage;
 
   try {
     const [matches, players, teams] = await Promise.all([
@@ -1024,15 +1089,19 @@ async function init() {
       needsTeams ? fetchTeams() : Promise.resolve([]),
     ]);
     ALL_MATCHES = matches;
+    ALL_TEAMS = teams;
 
     if (isHome) renderHome(matches);
     if (isMatchesPage) {
+      renderTeamFilterBar();
+      setupTeamFilterBar(() => renderMatchesTable());
       setupFilterBar();
       renderMatchesTable();
     }
     if (isStatsPage) {
-      renderStreakStats(matches);
-      renderCharts(matches);
+      renderTeamFilterBar();
+      setupTeamFilterBar(() => renderStatsPage());
+      renderStatsPage();
     }
     if (isRosterPage) renderRoster(players);
     if (isPlayerPage) renderPlayerProfile(players, matches);
@@ -1053,10 +1122,14 @@ async function init() {
     if (isMatchesPage) {
       document.getElementById('matches-tbody').innerHTML =
         `<tr><td colspan="6">${errorState(msg)}</td></tr>`;
+      const teamBar = document.getElementById('team-filter-bar');
+      if (teamBar) teamBar.innerHTML = '<span class="filter-count">Couldn\'t load teams</span>';
     }
     if (isStatsPage) {
-      renderStreakStats([]);
+      renderStatsPage();
       ['chart-winrate', 'chart-breakdown', 'chart-goals'].forEach(id => showChartMessage(id, msg));
+      const teamBar = document.getElementById('team-filter-bar');
+      if (teamBar) teamBar.innerHTML = '<span class="filter-count">Couldn\'t load teams</span>';
     }
     if (isRosterPage) {
       document.getElementById('roster-grid').innerHTML = errorState(msg);

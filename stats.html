@@ -36,17 +36,24 @@
   </div>
 </header>
 
-<section class="page-banner">
+<section class="page-banner page-banner--dashboard">
+  <div class="page-banner__glow" aria-hidden="true"></div>
   <div class="container page-banner__inner">
     <p class="page-banner__tag">Analytics</p>
     <h1 class="page-banner__title">Statistics</h1>
-    <p class="page-banner__desc">Streaks, averages, and visual breakdowns of org performance.</p>
+    <p class="page-banner__desc">Streaks, averages, and visual breakdowns — filter by team to drill down.</p>
   </div>
 </section>
 
 <main class="site-main">
   <section class="page-section page-section--tight-top">
     <div class="container">
+      <div class="filter-row filter-row--solo">
+        <span class="filter-label">Team</span>
+        <div class="filter-bar filter-bar--teams" id="team-filter-bar">
+          <span class="filter-count">Loading teams&hellip;</span>
+        </div>
+      </div>
       <div class="section-head">
         <div class="section-head__text">
           <span class="eyebrow">Performance Overview</span>

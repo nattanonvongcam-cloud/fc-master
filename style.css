@@ -366,6 +366,87 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   line-height: 1.65;
 }
 
+/* Compact premium dashboard header (matches / stats) */
+.page-banner--dashboard {
+  padding: 38px 0 34px;
+  background:
+    radial-gradient(ellipse 90% 140% at 15% -30%, rgba(61, 123, 255, 0.24) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 90% at 88% -10%, rgba(109, 179, 255, 0.14) 0%, transparent 52%),
+    linear-gradient(180deg, rgba(12, 20, 38, 0.97) 0%, rgba(4, 6, 13, 0.99) 100%);
+  border-bottom: 1px solid rgba(109, 179, 255, 0.16);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(109, 179, 255, 0.1);
+}
+.page-banner--dashboard::before {
+  background-size: 28px 28px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent 92%);
+}
+.page-banner--dashboard::after {
+  opacity: 0.65;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 5%, var(--accent-blue-bright) 50%, transparent 95%);
+  box-shadow: 0 0 20px var(--accent-glow-soft);
+}
+.page-banner__glow {
+  position: absolute;
+  top: -30%;
+  right: 8%;
+  width: min(320px, 45vw);
+  height: 180px;
+  background: radial-gradient(circle, rgba(61, 123, 255, 0.28) 0%, transparent 68%);
+  filter: blur(36px);
+  pointer-events: none;
+}
+.page-banner--dashboard .page-banner__title {
+  font-size: clamp(34px, 5vw, 50px);
+}
+
+/* Filter stacks */
+.filter-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.filter-stack .filter-bar {
+  margin-bottom: 0;
+}
+.filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.filter-row--solo {
+  margin-bottom: 28px;
+}
+.filter-label {
+  font-family: var(--font-eyebrow);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.filter-bar--teams {
+  flex-wrap: wrap;
+}
+.filter-bar--teams .filter-count {
+  margin-left: auto;
+  font-style: italic;
+}
+.filter-btn--team.is-active {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(109, 179, 255, 0.35) 0%, rgba(61, 123, 255, 0.5) 100%);
+  border-color: rgba(109, 179, 255, 0.45);
+  box-shadow: 0 0 20px var(--accent-glow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 560px) {
+  .page-banner--dashboard { padding: 32px 0 28px; }
+  .filter-bar--teams .filter-count { margin-left: 0; width: 100%; }
+}
+
 /* =========================================================
    Section headings
    ========================================================= */

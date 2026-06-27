@@ -36,23 +36,35 @@
   </div>
 </header>
 
-<section class="page-banner">
+<section class="page-banner page-banner--dashboard">
+  <div class="page-banner__glow" aria-hidden="true"></div>
   <div class="container page-banner__inner">
     <p class="page-banner__tag">Competitive Record</p>
     <h1 class="page-banner__title">Match History</h1>
-    <p class="page-banner__desc">Every scrim and tournament result, filterable by outcome.</p>
+    <p class="page-banner__desc">Every scrim and tournament result, filterable by team and outcome.</p>
   </div>
 </section>
 
 <main class="site-main">
   <section class="page-section page-section--tight-top">
     <div class="container">
-      <div class="filter-bar">
-        <button class="filter-btn is-active" data-filter="ALL">All Results</button>
-        <button class="filter-btn" data-filter="WIN">Wins</button>
-        <button class="filter-btn" data-filter="LOSS">Losses</button>
-        <button class="filter-btn" data-filter="DRAW">Draws</button>
-        <span class="filter-count" id="filter-count">Loading&hellip;</span>
+      <div class="filter-stack">
+        <div class="filter-row">
+          <span class="filter-label">Team</span>
+          <div class="filter-bar filter-bar--teams" id="team-filter-bar">
+            <span class="filter-count">Loading teams&hellip;</span>
+          </div>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Result</span>
+          <div class="filter-bar">
+            <button class="filter-btn is-active" data-filter="ALL">All Results</button>
+            <button class="filter-btn" data-filter="WIN">Wins</button>
+            <button class="filter-btn" data-filter="LOSS">Losses</button>
+            <button class="filter-btn" data-filter="DRAW">Draws</button>
+            <span class="filter-count" id="filter-count">Loading&hellip;</span>
+          </div>
+        </div>
       </div>
 
       <div class="table-wrapper">
