@@ -962,19 +962,20 @@ function renderPlayerProfile(players, matches, teams) {
 
   const mvpSection = document.getElementById('player-mvp-matches');
   if (mvpSection) {
-    const playerTeamId = (teams.find(t => normalizeTeamValue(t.name) === normalizeTeamValue(player.team)
-      || normalizeTeamValue(t.teamId) === normalizeTeamValue(player.team)) || {}).teamId || player.team;
+    const playerTeamObj = teams.find(t => normalizeTeamValue(t.name) === normalizeTeamValue(player.team)
+      || normalizeTeamValue(t.teamId) === normalizeTeamValue(player.team));
+    const playerMatchKey = playerTeamObj ? playerTeamObj.name : player.team;
     const mvpMatches = matches.filter(m => m.mvp && m.mvp.toLowerCase() === player.name.toLowerCase());
     if (mvpMatches.length === 0) {
       mvpSection.innerHTML = emptyState('No recorded MVP matches yet.');
     } else {
       mvpSection.innerHTML = mvpMatches.slice(0, 6).map(m => {
-        const opponent = getOpponentForTeam(m, playerTeamId);
+        const opponent = getOpponentForTeam(m, playerMatchKey);
         return `
           <div class="panel match-card-mini">
             <div class="match-card-mini__top">
               <span class="match-card-mini__opponent">vs ${escapeHTML(opponent.name)}</span>
-              ${badgeFor(getResultForTeam(m, playerTeamId))}
+              ${badgeFor(getResultForTeam(m, playerMatchKey))}
             </div>
             <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
             <span class="match-card-mini__date">${formatDate(m.date)}</span>
@@ -1025,12 +1026,13 @@ function renderTeamProfile(teams, players, matches) {
     </div>
   `;
 
+  const teamMatchKey = team.name;
   const teamMatches = matches.filter(m => {
     const home = normalizeTeamValue(m.homeTeam);
     const away = normalizeTeamValue(m.awayTeam);
-    return home === requested || away === requested;
+    return home === normalizeTeamValue(teamMatchKey) || away === normalizeTeamValue(teamMatchKey);
   });
-  const stats = computeStatsForTeam(teamMatches, requested);
+  const stats = computeStatsForTeam(teamMatches, teamMatchKey);
 
   if (statGrid) {
     statGrid.innerHTML = `
@@ -1062,13 +1064,13 @@ function renderTeamProfile(teams, players, matches) {
       tbody.innerHTML = `<tr><td colspan="6">${emptyState('No matches for this team yet.')}</td></tr>`;
     } else {
       tbody.innerHTML = teamMatches.map(m => {
-        const opponent = getOpponentForTeam(m, requested);
+        const opponent = getOpponentForTeam(m, teamMatchKey);
         return `
           <tr>
             <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
             <td data-label="Opponent">vs ${escapeHTML(opponent.name)}</td>
             <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
-            <td data-label="Result">${badgeFor(getResultForTeam(m, requested))}</td>
+            <td data-label="Result">${badgeFor(getResultForTeam(m, teamMatchKey))}</td>
             <td data-label="Tournament"><span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span></td>
             <td data-label="MVP" class="cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</td>
           </tr>
