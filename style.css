@@ -1665,17 +1665,24 @@ tbody tr:hover {
   color: var(--text-faint);
   margin: 0;
 }
+.footer-credit-strip {
+  border-top: 1px solid var(--border-line);
+  padding: 10px 0;
+  text-align: center;
+}
+
 .footer-credit {
-  margin-top: 0.5rem;
-  font-size: 0.7rem;
-  opacity: 0.08;
-  letter-spacing: 0.05em;
-  transition: opacity 0.3s ease;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
 }
 
 .footer-credit__name {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 500;
+  color: var(--accent-blue-bright);
+  font-weight: 700;
+  text-shadow: 0 0 10px var(--accent-glow-soft);
 }
 
 /* ---- PAGE TRANSITIONS ---- */
