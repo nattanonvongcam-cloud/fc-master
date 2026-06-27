@@ -587,7 +587,8 @@ function renderTeamFilterBar() {
     `<button type="button" class="filter-btn filter-btn--team is-active" data-team-filter="">All Teams</button>`,
     ...ALL_TEAMS.map(team => {
       const id = (team.teamId || '').trim();
-      return `<button type="button" class="filter-btn filter-btn--team" data-team-filter="${escapeHTML(id)}">${escapeHTML(team.name)}</button>`;
+      const color = teamColorRgb(team);
+      return `<button type="button" class="filter-btn filter-btn--team" data-team-filter="${escapeHTML(id)}" style="--team-c:${color}">${escapeHTML(team.name)}</button>`;
     }),
   ].join('');
 }
@@ -1024,8 +1025,10 @@ function renderRoster(players, teams) {
       : `<div class="feature-card__crest feature-card__crest--fallback">${escapeHTML(initials(top.name))}</div>`;
     const heroCard = document.createElement('div');
     heroCard.className = 'panel feature-card';
-    heroCard.style.cssText = `--team-c: ${colorRgb}; margin-bottom: 22px;`;
+    heroCard.style.cssText = `--team-c: ${colorRgb}; --ink-c: ${colorRgb}; margin-bottom: 22px;`;
     heroCard.innerHTML = `
+      <div class="ink-wash" aria-hidden="true"></div>
+      ${topTeam && topTeam.logo ? `<div class="card-logo-bg card-logo-bg--left" style="background-image:url('${escapeHTML(topTeam.logo)}')"></div>` : ''}
       <div class="feature-card__accent"></div>
       <div class="feature-card__eyebrow">⚽ Top Scorer</div>
       <div class="feature-card__main">
