@@ -1665,6 +1665,17 @@ tbody tr:hover {
   color: var(--text-faint);
   margin: 0;
 }
+.footer-credit {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  opacity: 0.35;
+  letter-spacing: 0.05em;
+}
+.footer-credit__name {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  opacity: 0.9;
+}
 
 /* ---- PAGE TRANSITIONS ---- */
 
