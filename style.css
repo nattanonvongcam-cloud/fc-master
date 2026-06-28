@@ -1682,6 +1682,8 @@ tbody tr:hover {
   background: linear-gradient(165deg, rgba(15, 22, 40, 0.85) 0%, rgba(10, 15, 26, 0.98) 100%);
   box-shadow: var(--shadow-card), var(--shadow-inset);
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+  position: relative;
 }
 .player-card:hover {
   border-color: rgb(var(--team-c, 91 157 255) / 0.3);
@@ -2154,11 +2156,11 @@ body.page-exiting {
 }
 .card-logo-bg {
   position: absolute;
-  right: -80px;
+  right: -100px;
   top: 50%;
   transform: translateY(-50%);
-  width: 280px;
-  height: 280px;
+  width: 380px;
+  height: 380px;
   opacity: 0.15;
   background-size: contain;
   background-repeat: no-repeat;
