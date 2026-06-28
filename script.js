@@ -1012,6 +1012,11 @@ function playerLink(player) {
   return `player.html?name=${encodeURIComponent(player.name)}`;
 }
 
+function mvpCountForPlayer(name) {
+  if (!name || !Array.isArray(ALL_MATCHES)) return 0;
+  return ALL_MATCHES.filter(m => m.mvp && m.mvp.toLowerCase() === name.toLowerCase()).length;
+}
+
 function renderRoster(players, teams) {
   const grid = document.getElementById('roster-grid');
   const countEl = document.getElementById('roster-count');
@@ -1044,7 +1049,7 @@ function renderRoster(players, teams) {
         <div class="feature-card__info">
           <span class="feature-card__name">${escapeHTML(top.name)}</span>
           <span class="feature-card__value">${top.goals} Goals</span>
-          <span class="feature-card__sub">${top.assists} Assists · ${top.mvps} MVPs</span>
+          <span class="feature-card__sub">${top.assists} Assists · ${mvpCountForPlayer(top.name)} MVPs</span>
         </div>
       </div>
     `;
@@ -1073,7 +1078,7 @@ function renderRoster(players, teams) {
           <span class="player-card__stat-label">Assists</span>
         </div>
         <div class="player-card__stat">
-          <span class="player-card__stat-value">${p.mvps}</span>
+          <span class="player-card__stat-value">${mvpCountForPlayer(p.name)}</span>
           <span class="player-card__stat-label">MVPs</span>
         </div>
       </div>
@@ -1302,7 +1307,7 @@ function renderPlayerProfile(players, matches, teams) {
       </div>
       <div class="panel stat-card">
         <span class="stat-card__label">MVP Awards</span>
-        <span class="stat-card__value">${player.mvps}</span>
+        <span class="stat-card__value">${mvpCountForPlayer(player.name)}</span>
         <span class="stat-card__sub">Player of the match</span>
       </div>
     `;
