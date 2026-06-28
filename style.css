@@ -1451,6 +1451,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: var(--shadow-card);
 }
 table { width: 100%; border-collapse: collapse; }
+.page-matches table td:nth-child(2),
+.page-matches table th:nth-child(2) {
+  max-width: 200px;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
 thead th {
   text-align: left;
   font-family: var(--font-eyebrow);
