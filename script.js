@@ -1715,35 +1715,10 @@ function initTransitions() {
   });
 }
 
-function setupCardTilt() {
-  const SELECTOR = '.team-card, .player-card';
-  document.addEventListener('mousemove', (e) => {
-    const card = e.target && e.target.closest ? e.target.closest(SELECTOR) : null;
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    card.style.setProperty('--mx', `${x}%`);
-    card.style.setProperty('--my', `${y}%`);
-    const rotateY = ((x - 50) / 50) * 6;
-    const rotateX = ((50 - y) / 50) * 6;
-    card.style.setProperty('--rx', `${rotateX}deg`);
-    card.style.setProperty('--ry', `${rotateY}deg`);
-  });
-  document.addEventListener('mouseout', (e) => {
-    const card = e.target?.closest(SELECTOR);
-    if (!card) return;
-    if (card.contains(e.relatedTarget)) return;
-    card.style.setProperty('--rx', '0deg');
-    card.style.setProperty('--ry', '0deg');
-  });
-}
-
 async function init() {
   registerServiceWorker();
   initTransitions();
   initBottomNav();
-  setupCardTilt();
   const isHome = document.getElementById('recent-matches');
   const isMatchesPage = document.getElementById('matches-tbody');
   const isStatsPage = document.getElementById('chart-winrate');

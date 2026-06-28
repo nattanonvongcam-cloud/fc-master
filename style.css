@@ -2419,6 +2419,16 @@ tbody tr:hover {
   overflow: hidden;
   position: relative;
 }
+.player-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
 .player-card::before {
   content: "";
   position: absolute;
@@ -2429,63 +2439,6 @@ tbody tr:hover {
   background: linear-gradient(180deg, rgb(var(--team-c, 91 157 255) / 0.8), rgb(var(--team-c, 91 157 255)));
   border-radius: 0 999px 999px 0;
   box-shadow: 0 0 16px rgb(var(--team-c, 91 157 255) / 0.2);
-}
-.team-card, .player-card {
-  --mx: 50%;
-  --my: 50%;
-  --rx: 0deg;
-  --ry: 0deg;
-  transform-style: preserve-3d;
-  transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
-  transition: transform 0.15s ease-out, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-.team-card::after, .player-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle 180px at var(--mx) var(--my), rgb(var(--team-c, 91 157 255) / 0.18), transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  background-size: auto, 180px 180px;
-  background-repeat: no-repeat;
-  background-position: center;
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  z-index: 2;
-  box-sizing: border-box;
-  padding: 1px;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-}
-.team-card:hover::after, .player-card:hover::after {
-  opacity: 1;
-}
-.team-card, .player-card {
-  position: relative;
-  z-index: 0;
-}
-.team-card, .player-card {
-  --border-glow: conic-gradient(
-    from var(--angle, 0deg),
-    transparent 0%,
-    rgb(var(--team-c, 91 157 255)) 8%,
-    transparent 16%
-  );
-}
-.team-card:hover, .player-card:hover {
-  animation: card-border-spin 2.5s linear infinite;
-}
-@keyframes card-border-spin {
-  to { --angle: 360deg; }
-}
-@property --angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
 }
 .team-card {
   cursor: pointer;
@@ -2501,7 +2454,6 @@ tbody tr:hover {
   position: absolute;
   top: 0;
   left: 0;
-  clip-path: none;
   width: 0;
   height: 0;
   border-style: solid;
@@ -2509,10 +2461,10 @@ tbody tr:hover {
   border-color: rgb(var(--team-c, 91 157 255)) transparent transparent transparent;
   border-top-left-radius: 14px;
   box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.25);
-  z-index: 3;
+  z-index: 1;
 }
 .team-card:hover {
-  transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(-6px) scale(1.02);
+  transform: translateY(-6px) scale(1.02);
   border-color: rgb(var(--team-c, 91 157 255) / 0.5);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 32px rgb(var(--team-c, 91 157 255) / 0.35);
 }
@@ -2524,7 +2476,7 @@ tbody tr:hover {
   color: rgb(var(--team-c, 91 157 255));
 }
 .team-card:active {
-  transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(-1px);
+  transform: translateY(-1px);
 }
 .player-card:hover {
   border-color: rgb(var(--team-c, 91 157 255) / 0.3);
