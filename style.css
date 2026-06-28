@@ -2452,13 +2452,15 @@ tbody tr:hover {
 .team-card::before {
   content: '';
   position: absolute;
-  top: -22px;
-  left: -22px;
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, rgb(var(--team-c, 91 157 255)), rgb(var(--team-c, 91 157 255) / 0.6));
-  box-shadow: 0 0 12px rgb(var(--team-c, 91 157 255) / 0.5);
-  transform: rotate(45deg);
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 32px 32px 0 0;
+  border-color: rgb(var(--team-c, 91 157 255)) transparent transparent transparent;
+  border-top-left-radius: 14px;
+  box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.25);
   z-index: 1;
 }
 .team-card:hover {
