@@ -2159,8 +2159,11 @@ body.page-exiting {
   transform: translateY(-50%);
   width: 200px;
   height: 200px;
-  opacity: 0.08;
-  object-fit: contain;
+  opacity: 0.12;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  mix-blend-mode: screen;
   pointer-events: none;
   z-index: 0;
 }
