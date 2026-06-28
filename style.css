@@ -818,7 +818,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .page-home #latest-match.panel {
   padding: 28px 32px;
-  min-height: 220px;
   border-radius: 24px;
   height: fit-content;
   align-self: flex-start;
@@ -1266,6 +1265,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 24px;
+  padding: 36px 28px;
 }
 .latest-match__side {
   display: flex;
@@ -1276,7 +1276,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .latest-match__score {
   font-family: var(--font-mono);
-  font-size: clamp(2.45rem, 4vw, 3.35rem);
+  font-size: clamp(3rem, 5.2vw, 4.4rem);
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -1306,8 +1306,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   text-shadow: 0 0 32px var(--accent-glow-soft);
 }
 .team-crest {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   border-radius: 14px;
   background: var(--bg-panel-raised);
   border: 1px solid rgba(109, 179, 255, 0.25);
