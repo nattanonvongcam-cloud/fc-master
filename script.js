@@ -523,7 +523,11 @@ function renderHome(allMatches, teams) {
                style="animation-delay:${i * 0.06}s;--home-c:${recentTeamColorMap[normalizeTeamValue(m.homeTeam)] || '61 123 255'};--away-c:${recentTeamColorMap[normalizeTeamValue(m.awayTeam)] || '61 123 255'}">
             <div class="match-ink match-ink--subtle" aria-hidden="true"></div>
             <div class="match-card-mini__top">
-              <span class="match-card-mini__opponent">${escapeHTML(m.homeTeam)} vs ${escapeHTML(m.awayTeam)}</span>
+              <span class="match-card-mini__opponent">
+                <span class="${m.result === 'WIN' ? 'match-card-mini__team--winner' : ''}">${escapeHTML(m.homeTeam)}</span>
+                <span class="match-card-mini__vs"> vs </span>
+                <span class="${m.result === 'LOSS' ? 'match-card-mini__team--winner' : ''}">${escapeHTML(m.awayTeam)}</span>
+              </span>
             </div>
             <span class="match-card-mini__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</span>
             ${badgeFor(m.result)}
