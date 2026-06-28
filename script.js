@@ -1051,13 +1051,14 @@ function renderRoster(players, teams) {
     grid.parentElement.insertBefore(heroCard, grid);
   }
 
-  const teamLogoMap = Object.fromEntries(teams.map(t => [t.name, t.logo || '']));
   const teamColorMap = Object.fromEntries(teams.map(t => [t.name, teamColorRgb(t)]));
 
-  grid.innerHTML = players.map((p, i) => `
-    <a class="panel player-card animate-in" href="${playerLink(p)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(findTeamForPlayer(teams, p.team))}">
+  grid.innerHTML = players.map((p, i) => {
+    const teamObj = findTeamForPlayer(teams, p.team);
+    return `
+    <a class="panel player-card animate-in" href="${playerLink(p)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(teamObj)}">
       <div class="ink-wash" style="--ink-c:${teamColorMap[p.team] || '61,123,255'}"></div>
-      ${teamLogoMap[p.team] ? `<div class="card-logo-bg" style="background-image:url('${escapeHTML(teamLogoMap[p.team])}')"></div>` : ''}
+      ${teamObj && teamObj.logo ? `<div class="card-logo-bg" style="background-image:url('${escapeHTML(teamObj.logo)}')"></div>` : ''}
       ${avatarMarkup(p, 'player-card__avatar')}
       <span class="player-card__name">${escapeHTML(p.name)}</span>
       <span class="player-card__role">${escapeHTML(p.role)}</span>
@@ -1077,7 +1078,8 @@ function renderRoster(players, teams) {
         </div>
       </div>
     </a>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function renderTeams(teams) {
