@@ -478,7 +478,6 @@ function renderHome(allMatches, teams) {
           ${m.awayLogo ? `<div class="match-logo match-logo--away" style="background-image:url('${escapeHTML(m.awayLogo)}')"></div>` : ''}
           <div class="latest-match__side">
             ${homeCrest}
-            <span class="latest-match__name">${escapeHTML(m.homeTeam)}</span>
           </div>
           <div class="latest-match__score">
             <div class="score-side score-side--home">
@@ -495,8 +494,11 @@ function renderHome(allMatches, teams) {
           </div>
           <div class="latest-match__side">
             ${awayCrest}
-            <span class="latest-match__name">${escapeHTML(m.awayTeam)}</span>
           </div>
+        </div>
+        <div class="latest-match__names-row">
+          <span class="latest-match__name">${escapeHTML(m.homeTeam)}</span>
+          <span class="latest-match__name">${escapeHTML(m.awayTeam)}</span>
         </div>
         <div class="latest-match__meta">
           <span>${formatDate(m.date)} &middot; ${escapeHTML(m.tournament)}</span>

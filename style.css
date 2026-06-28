@@ -818,7 +818,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .page-home #latest-match.panel {
   padding: 28px 32px;
-  min-height: 380px;
   border-radius: 24px;
   height: fit-content;
   align-self: flex-start;
@@ -1328,6 +1327,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+.latest-match__names-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-family: var(--font-eyebrow);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
 }
 .latest-match__divider { color: var(--text-faint); font-size: 24px; }
 .latest-match__meta {
