@@ -2154,12 +2154,12 @@ body.page-exiting {
 }
 .card-logo-bg {
   position: absolute;
-  right: -20px;
+  right: -80px;
   top: 50%;
   transform: translateY(-50%);
-  width: 200px;
-  height: 200px;
-  opacity: 0.12;
+  width: 280px;
+  height: 280px;
+  opacity: 0.15;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
