@@ -2153,19 +2153,15 @@ body.page-exiting {
 }
 .card-logo-bg {
   position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 140px;
-  height: 140px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center bottom;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  height: 200px;
+  opacity: 0.08;
+  object-fit: contain;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.18;
-  -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 75%);
-  mask-image: linear-gradient(to top, black 0%, black 25%, transparent 75%);
 }
 
 .card-logo-bg--left {
