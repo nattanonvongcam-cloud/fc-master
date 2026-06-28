@@ -329,11 +329,40 @@ async function fetchTeams() {
 }
 
 // ---- HELPERS --------------------------------------------------
-function computeStats(matches) {
-  const wins = matches.filter(m => m.result === 'WIN').length;
-  const losses = matches.filter(m => m.result === 'LOSS').length;
-  const draws = matches.filter(m => m.result === 'DRAW').length;
-  const total = matches.length;
+function getPerspectiveForTeam(match, activeTeamId) {
+  const key = normalizeTeamValue(activeTeamId);
+  const home = normalizeTeamValue(match.homeTeam);
+  const away = normalizeTeamValue(match.awayTeam);
+
+  if (key && key === home) {
+    return {
+      result: resultFromScores(match.scoreFor, match.scoreAgainst),
+      scoreFor: match.scoreFor,
+      scoreAgainst: match.scoreAgainst,
+    };
+  }
+
+  if (key && key === away) {
+    return {
+      result: resultFromScores(match.scoreAgainst, match.scoreFor),
+      scoreFor: match.scoreAgainst,
+      scoreAgainst: match.scoreFor,
+    };
+  }
+
+  return {
+    result: match.result || 'DRAW',
+    scoreFor: match.scoreFor,
+    scoreAgainst: match.scoreAgainst,
+  };
+}
+
+function computeStats(matches, activeTeamId = null) {
+  const perspective = matches.map(m => getPerspectiveForTeam(m, activeTeamId));
+  const wins = perspective.filter(m => m.result === 'WIN').length;
+  const losses = perspective.filter(m => m.result === 'LOSS').length;
+  const draws = perspective.filter(m => m.result === 'DRAW').length;
+  const total = perspective.length;
   const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
   return { total, wins, losses, draws, winRate };
 }
@@ -352,7 +381,7 @@ function cssVar(name) {
 
 function badgeFor(result) {
   const cls = result === 'WIN' ? 'badge--win' : result === 'LOSS' ? 'badge--loss' : 'badge--draw';
-  return `<span class="badge ${cls}">${result}</span>`;
+  return `<span class="badge ${cls}">${result ?? '—'}</span>`;
 }
 
 function escapeHTML(str) {
@@ -835,8 +864,9 @@ function setupFilterBar() {
 
 function renderStatsPage() {
   const matches = getTeamFilteredMatches();
-  renderStreakStats(matches);
-  renderCharts(matches);
+  const activeTeamId = ACTIVE_TEAM_FILTER || null;
+  renderStreakStats(matches, activeTeamId);
+  renderCharts(matches, activeTeamId);
 }
 
 // =========================================================
@@ -846,14 +876,14 @@ function renderStatsPage() {
 // matches is newest-first. Current streak = how many of the most
 // recent matches share the same result. Best streak = the longest
 // run of consecutive WINs anywhere in the history.
-function computeStreaks(matches) {
+function computeStreaks(matches, activeTeamId = null) {
   let current = 0;
   let currentType = null;
 
   if (matches.length > 0) {
-    currentType = matches[0].result;
+    currentType = getPerspectiveForTeam(matches[0], activeTeamId).result;
     for (const m of matches) {
-      if (m.result === currentType) current++;
+      if (getPerspectiveForTeam(m, activeTeamId).result === currentType) current++;
       else break;
     }
   }
@@ -862,17 +892,17 @@ function computeStreaks(matches) {
   let run = 0;
   const chrono = [...matches].reverse();
   for (const m of chrono) {
-    if (m.result === 'WIN') { run++; if (run > best) best = run; }
+    if (getPerspectiveForTeam(m, activeTeamId).result === 'WIN') { run++; if (run > best) best = run; }
     else { run = 0; }
   }
 
   return { current, currentType, best };
 }
 
-function computeAverages(matches) {
+function computeAverages(matches, activeTeamId = null) {
   if (matches.length === 0) return { avgFor: 0, avgAgainst: 0 };
-  const totalFor = matches.reduce((sum, m) => sum + m.scoreFor, 0);
-  const totalAgainst = matches.reduce((sum, m) => sum + m.scoreAgainst, 0);
+  const totalFor = matches.reduce((sum, m) => sum + getPerspectiveForTeam(m, activeTeamId).scoreFor, 0);
+  const totalAgainst = matches.reduce((sum, m) => sum + getPerspectiveForTeam(m, activeTeamId).scoreAgainst, 0);
   return {
     avgFor: totalFor / matches.length,
     avgAgainst: totalAgainst / matches.length,
@@ -890,9 +920,9 @@ function streakColorClass(type) {
     : '';
 }
 
-function renderStreakStats(matches) {
-  const streaks = computeStreaks(matches);
-  const avgs = computeAverages(matches);
+function renderStreakStats(matches, activeTeamId = null) {
+  const streaks = computeStreaks(matches, activeTeamId);
+  const avgs = computeAverages(matches, activeTeamId);
   const hasMatches = matches.length > 0;
 
   const currentEl = document.getElementById('stat-current-streak');
@@ -915,13 +945,13 @@ function renderStreakStats(matches) {
 }
 
 // Cumulative win rate after each match, oldest to newest.
-function computeWinRateSeries(matches) {
+function computeWinRateSeries(matches, activeTeamId = null) {
   const chrono = [...matches].reverse();
   let wins = 0;
   const labels = [];
   const data = [];
   chrono.forEach((m, i) => {
-    if (m.result === 'WIN') wins++;
+    if (getPerspectiveForTeam(m, activeTeamId).result === 'WIN') wins++;
     labels.push(formatDateShort(m.date));
     data.push(Math.round((wins / (i + 1)) * 100));
   });
@@ -929,13 +959,13 @@ function computeWinRateSeries(matches) {
 }
 
 // Goals for/against for the most recent `count` matches, oldest to newest.
-function computeGoalsSeries(matches, count) {
+function computeGoalsSeries(matches, count, activeTeamId = null) {
   const chrono = [...matches].reverse();
   const slice = chrono.slice(-count);
   return {
     labels: slice.map(m => formatDateShort(m.date)),
-    goalsFor: slice.map(m => m.scoreFor),
-    goalsAgainst: slice.map(m => m.scoreAgainst),
+    goalsFor: slice.map(m => getPerspectiveForTeam(m, activeTeamId).scoreFor),
+    goalsAgainst: slice.map(m => getPerspectiveForTeam(m, activeTeamId).scoreAgainst),
   };
 }
 
@@ -963,7 +993,7 @@ function showChartMessage(canvasId, msg) {
 
 let CHART_INSTANCES = [];
 
-function renderCharts(matches) {
+function renderCharts(matches, activeTeamId = null) {
   ['chart-winrate', 'chart-breakdown', 'chart-goals'].forEach(id => {
     const canvas = document.getElementById(id);
     if (canvas) {
@@ -1006,7 +1036,7 @@ function renderCharts(matches) {
 
   const winrateCanvas = document.getElementById('chart-winrate');
   if (winrateCanvas) {
-    const wr = computeWinRateSeries(matches);
+    const wr = computeWinRateSeries(matches, activeTeamId);
     CHART_INSTANCES.push(new Chart(winrateCanvas, {
       type: 'line',
       data: {
@@ -1037,7 +1067,7 @@ function renderCharts(matches) {
 
   const breakdownCanvas = document.getElementById('chart-breakdown');
   if (breakdownCanvas) {
-    const stats = computeStats(matches);
+    const stats = computeStats(matches, activeTeamId);
     CHART_INSTANCES.push(new Chart(breakdownCanvas, {
       type: 'doughnut',
       data: {
@@ -1062,7 +1092,7 @@ function renderCharts(matches) {
 
   const goalsCanvas = document.getElementById('chart-goals');
   if (goalsCanvas) {
-    const g = computeGoalsSeries(matches, 10);
+    const g = computeGoalsSeries(matches, 10, activeTeamId);
     CHART_INSTANCES.push(new Chart(goalsCanvas, {
       type: 'bar',
       data: {
@@ -1155,7 +1185,7 @@ function renderRoster(players, teams) {
     const teamObj = findTeamForPlayer(teams, p.team);
     return `
     <a class="panel player-card animate-in" href="${playerLink(p)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(teamObj)}">
-      <div class="ink-wash" style="--ink-c:${teamColorMap[p.team] || '61,123,255'}"></div>
+      <div class="ink-wash" style="--ink-c:${teamColorMap[p.team] || '61 123 255'}"></div>
       ${teamObj && teamObj.logo ? `<div class="card-logo-bg" style="background-image:url('${escapeHTML(teamObj.logo)}')"></div>` : ''}
       ${avatarMarkup(p, 'player-card__avatar')}
       <span class="player-card__name">${escapeHTML(p.name)}</span>
@@ -1730,7 +1760,9 @@ async function init() {
         const el = document.getElementById(id);
         if (el) el.innerHTML = errorState(msg);
       });
-      ['stat-total', 'stat-wins', 'stat-losses', 'stat-draws', 'stat-winrate'].forEach(id => setText(id, '—'));
+      const leaderCard = document.getElementById('stat-leader-card');
+      if (leaderCard) leaderCard.innerHTML = errorState(msg);
+      ['stat-total', 'stat-goals', 'stat-teams'].forEach(id => setText(id, '—'));
     }
     if (isMatchesPage) {
       document.getElementById('matches-tbody').innerHTML =
