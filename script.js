@@ -696,21 +696,47 @@ function renderMatchesTable() {
   if (cardGrid) cardGrid.style.display = 'none';
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6">${emptyState('No matches found for this filter.')}</td></tr>`;
+    tbody.innerHTML = `
+      <div class="matches-table-row">
+        <div class="matches-table-cell matches-table-cell--empty" style="grid-column: 1 / -1;">
+          ${emptyState('No matches found for this filter.')}
+        </div>
+      </div>
+    `;
     return;
   }
 
   tbody.innerHTML = filtered.map((m, i) => {
-    const { opponent, result } = getDisplayResultAndOpponent(m);
+    const { result } = getDisplayResultAndOpponent(m);
+    const homeLogo = m.homeLogo
+      ? `<img class="match-panel__logo" src="${escapeHTML(m.homeLogo)}" alt="${escapeHTML(m.homeTeam)}">`
+      : `<div class="match-panel__logo match-panel__logo--fallback">${escapeHTML(initials(m.homeTeam))}</div>`;
+    const awayLogo = m.awayLogo
+      ? `<img class="match-panel__logo" src="${escapeHTML(m.awayLogo)}" alt="${escapeHTML(m.awayTeam)}">`
+      : `<div class="match-panel__logo match-panel__logo--fallback">${escapeHTML(initials(m.awayTeam))}</div>`;
+
     return `
-    <tr class="row-anim" style="animation-delay:${Math.min(i * 0.03, 0.3)}s;--home-c:${rowColorMap[normalizeTeamValue(m.homeTeam)] || '61 123 255'};--away-c:${rowColorMap[normalizeTeamValue(m.awayTeam)] || '61 123 255'}">
-      <td data-label="Date" class="cell-muted">${formatDate(m.date)}</td>
-      <td data-label="Match">${escapeHTML(m.homeTeam)} vs ${escapeHTML(m.awayTeam)}</td>
-      <td data-label="Score" class="cell-score">${m.scoreFor} &ndash; ${m.scoreAgainst}</td>
-      <td data-label="Result">${badgeFor(result)}</td>
-      <td data-label="Tournament"><span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span></td>
-      <td data-label="MVP" class="cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</td>
-    </tr>
+    <div class="panel match-panel row-anim" style="animation-delay:${Math.min(i * 0.03, 0.3)}s;--home-c:${rowColorMap[normalizeTeamValue(m.homeTeam)] || '61 123 255'};--away-c:${rowColorMap[normalizeTeamValue(m.awayTeam)] || '61 123 255'}">
+      <div class="match-panel__top">
+        <span class="match-panel__date cell-muted">${formatDate(m.date)}</span>
+        <span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span>
+      </div>
+      <div class="match-panel__middle">
+        <div class="match-panel__side">
+          ${homeLogo}
+          <span class="match-panel__team-name">${escapeHTML(m.homeTeam)}</span>
+        </div>
+        <div class="match-panel__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</div>
+        <div class="match-panel__side">
+          ${awayLogo}
+          <span class="match-panel__team-name">${escapeHTML(m.awayTeam)}</span>
+        </div>
+      </div>
+      <div class="match-panel__bottom">
+        <div>${badgeFor(result)}</div>
+        <div class="match-panel__mvp cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</div>
+      </div>
+    </div>
   `;
   }).join('');
 }
@@ -1641,7 +1667,7 @@ async function init() {
     }
     if (isMatchesPage) {
       document.getElementById('matches-tbody').innerHTML =
-        `<tr><td colspan="6">${errorState(msg)}</td></tr>`;
+        `<div class="matches-table-row"><div class="matches-table-cell matches-table-cell--empty" style="grid-column: 1 / -1;">${errorState(msg)}</div></div>`;
       const teamBar = document.getElementById('team-filter-bar');
       if (teamBar) teamBar.innerHTML = '<span class="filter-count">Couldn\'t load teams</span>';
     }

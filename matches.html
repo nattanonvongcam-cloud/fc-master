@@ -81,21 +81,23 @@
       </div>
 
       <div class="table-wrapper">
-        <table class="matches-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>MATCH</th>
-              <th>Score</th>
-              <th>Result</th>
-              <th>Tournament</th>
-              <th>MVP</th>
-            </tr>
-          </thead>
-          <tbody id="matches-tbody">
-            <tr><td colspan="6"><div class="state-message">Loading match history&hellip;</div></td></tr>
-          </tbody>
-        </table>
+        <div class="matches-table" id="matches-list">
+          <div class="matches-table-header">
+            <div class="matches-table-cell">Date</div>
+            <div class="matches-table-cell">MATCH</div>
+            <div class="matches-table-cell">Score</div>
+            <div class="matches-table-cell">Result</div>
+            <div class="matches-table-cell">Tournament</div>
+            <div class="matches-table-cell">MVP</div>
+          </div>
+          <div class="matches-table-body" id="matches-tbody">
+            <div class="matches-table-row">
+              <div class="matches-table-cell matches-table-cell--empty" style="grid-column: 1 / -1;">
+                <div class="state-message">Loading match history&hellip;</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
