@@ -620,6 +620,29 @@ function getDisplayResultAndOpponent(m) {
   };
 }
 
+function getTeamSecondaryInfo(teamName, teamId, standingsByKey, teamLookup) {
+  const lookupKey = normalizeTeamValue(teamId || teamName);
+  const teamEntry = teamLookup.get(lookupKey) || teamLookup.get(normalizeTeamValue(teamName));
+  const standing = standingsByKey.get(lookupKey) || standingsByKey.get(normalizeTeamValue(teamName));
+
+  if (standing && standing.mp > 0) {
+    if (standing.rank) {
+      return `#${standing.rank}`;
+    }
+    const record = standing.d > 0
+      ? `${standing.w}W · ${standing.d}D · ${standing.l}L`
+      : `${standing.w}W · ${standing.l}L`;
+    return record;
+  }
+
+  if (teamEntry && teamEntry.description) {
+    const clean = String(teamEntry.description).replace(/\s+/g, ' ').trim();
+    return clean.length > 38 ? `${clean.slice(0, 35)}…` : clean;
+  }
+
+  return '';
+}
+
 function renderMatchesTable() {
   const tbody = document.getElementById('matches-tbody');
   const countEl = document.getElementById('filter-count');
@@ -637,6 +660,17 @@ function renderMatchesTable() {
   const rowColorMap = Object.fromEntries(ALL_TEAMS.map(t => [
     normalizeTeamValue(t.name), teamColorRgb(t)
   ]));
+  const standings = computeStandings(ALL_TEAMS, ALL_MATCHES).map((s, index) => ({ ...s, rank: index + 1 }));
+  const standingsByKey = new Map();
+  standings.forEach(s => {
+    standingsByKey.set(normalizeTeamValue(s.teamId), s);
+    standingsByKey.set(normalizeTeamValue(s.name), s);
+  });
+  const teamLookup = new Map();
+  ALL_TEAMS.forEach(team => {
+    teamLookup.set(normalizeTeamValue(team.teamId), team);
+    teamLookup.set(normalizeTeamValue(team.name), team);
+  });
 
   if (VIEW_MODE === 'card') {
     const tableWrap = document.querySelector('.table-wrapper');
@@ -735,10 +769,13 @@ function renderMatchesTable() {
         : '<span class="match-panel__watermark match-panel__watermark--home match-panel__watermark--loss">LOSS</span><span class="match-panel__watermark match-panel__watermark--away match-panel__watermark--win">WIN</span>';
 
     const panelStyle = `animation-delay:${Math.min(i * 0.03, 0.3)}s;--home-c:${rowColorMap[normalizeTeamValue(m.homeTeam)] || '61 123 255'};--away-c:${rowColorMap[normalizeTeamValue(m.awayTeam)] || '61 123 255'}`;
+    const homeMeta = getTeamSecondaryInfo(m.homeTeam, m.homeTeam, standingsByKey, teamLookup);
+    const awayMeta = getTeamSecondaryInfo(m.awayTeam, m.awayTeam, standingsByKey, teamLookup);
 
     return `
     <div class="panel ${panelClass} row-anim" style="${panelStyle}">
       ${resultWatermark}
+      <div class="match-panel__branding" aria-hidden="true">FC MASTER</div>
       <div class="match-panel__top">
         <span class="match-panel__date cell-muted">${formatDate(m.date)}</span>
         <span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span>
@@ -746,16 +783,24 @@ function renderMatchesTable() {
       <div class="match-panel__middle">
         <div class="match-panel__side ${isHomeWin ? 'match-panel__side--winner' : isAwayWin ? 'match-panel__side--loser' : ''}">
           ${homeLogo}
-          <span class="match-panel__team-name">${escapeHTML(m.homeTeam)}</span>
+          <div class="match-panel__team-block">
+            <span class="match-panel__team-name">${escapeHTML(m.homeTeam)}</span>
+            ${homeMeta ? `<span class="match-panel__team-meta">${escapeHTML(homeMeta)}</span>` : ''}
+          </div>
         </div>
-        <div class="match-panel__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</div>
+        <div class="match-panel__score-wrap">
+          <div class="match-panel__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</div>
+        </div>
         <div class="match-panel__side ${isAwayWin ? 'match-panel__side--winner' : isHomeWin ? 'match-panel__side--loser' : ''}">
           ${awayLogo}
-          <span class="match-panel__team-name">${escapeHTML(m.awayTeam)}</span>
+          <div class="match-panel__team-block">
+            <span class="match-panel__team-name">${escapeHTML(m.awayTeam)}</span>
+            ${awayMeta ? `<span class="match-panel__team-meta">${escapeHTML(awayMeta)}</span>` : ''}
+          </div>
         </div>
       </div>
       <div class="match-panel__bottom">
-        <div>${badgeFor(result)}</div>
+        <div class="match-panel__result ${isDraw ? 'match-panel__result--draw' : isHomeWin ? 'match-panel__result--win' : 'match-panel__result--loss'}">${result}</div>
         <div class="match-panel__mvp cell-muted">${m.mvp ? `MVP: ${escapeHTML(m.mvp)}` : 'MVP: &mdash;'}</div>
       </div>
     </div>
