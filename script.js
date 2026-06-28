@@ -715,26 +715,45 @@ function renderMatchesTable() {
       ? `<img class="match-panel__logo" src="${escapeHTML(m.awayLogo)}" alt="${escapeHTML(m.awayTeam)}">`
       : `<div class="match-panel__logo match-panel__logo--fallback">${escapeHTML(initials(m.awayTeam))}</div>`;
 
+    const isHomeWin = m.result === 'WIN';
+    const isAwayWin = m.result === 'LOSS';
+    const isDraw = m.result === 'DRAW';
+
+    const panelClass = isDraw
+      ? 'match-panel match-panel--draw'
+      : isHomeWin
+        ? 'match-panel match-panel--home-win'
+        : 'match-panel match-panel--away-win';
+
+    const resultWatermark = isDraw
+      ? '<span class="match-panel__watermark match-panel__watermark--draw">DRAW</span>'
+      : isHomeWin
+        ? '<span class="match-panel__watermark match-panel__watermark--home match-panel__watermark--win">WIN</span><span class="match-panel__watermark match-panel__watermark--away match-panel__watermark--loss">LOSS</span>'
+        : '<span class="match-panel__watermark match-panel__watermark--home match-panel__watermark--loss">LOSS</span><span class="match-panel__watermark match-panel__watermark--away match-panel__watermark--win">WIN</span>';
+
+    const panelStyle = `animation-delay:${Math.min(i * 0.03, 0.3)}s;--home-c:${rowColorMap[normalizeTeamValue(m.homeTeam)] || '61 123 255'};--away-c:${rowColorMap[normalizeTeamValue(m.awayTeam)] || '61 123 255'}`;
+
     return `
-    <div class="panel match-panel row-anim" style="animation-delay:${Math.min(i * 0.03, 0.3)}s;--home-c:${rowColorMap[normalizeTeamValue(m.homeTeam)] || '61 123 255'};--away-c:${rowColorMap[normalizeTeamValue(m.awayTeam)] || '61 123 255'}">
+    <div class="panel ${panelClass} row-anim" style="${panelStyle}">
+      ${resultWatermark}
       <div class="match-panel__top">
         <span class="match-panel__date cell-muted">${formatDate(m.date)}</span>
         <span class="cell-tournament-tag">${escapeHTML(m.tournament)}</span>
       </div>
       <div class="match-panel__middle">
-        <div class="match-panel__side">
+        <div class="match-panel__side ${isHomeWin ? 'match-panel__side--winner' : isAwayWin ? 'match-panel__side--loser' : ''}">
           ${homeLogo}
           <span class="match-panel__team-name">${escapeHTML(m.homeTeam)}</span>
         </div>
         <div class="match-panel__score">${m.scoreFor} &ndash; ${m.scoreAgainst}</div>
-        <div class="match-panel__side">
+        <div class="match-panel__side ${isAwayWin ? 'match-panel__side--winner' : isHomeWin ? 'match-panel__side--loser' : ''}">
           ${awayLogo}
           <span class="match-panel__team-name">${escapeHTML(m.awayTeam)}</span>
         </div>
       </div>
       <div class="match-panel__bottom">
         <div>${badgeFor(result)}</div>
-        <div class="match-panel__mvp cell-muted">${m.mvp ? escapeHTML(m.mvp) : '&mdash;'}</div>
+        <div class="match-panel__mvp cell-muted">${m.mvp ? `MVP: ${escapeHTML(m.mvp)}` : 'MVP: &mdash;'}</div>
       </div>
     </div>
   `;

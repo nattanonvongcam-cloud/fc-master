@@ -1360,11 +1360,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 @media (max-width: 560px) { .match-cards-grid { grid-template-columns: 1fr; } }
 
 .match-panel {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 14px;
   padding: 20px;
   border: 1px solid rgba(109, 179, 255, 0.16);
+  overflow: hidden;
   transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
 }
 .match-panel:hover {
@@ -1372,9 +1374,65 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-color: rgba(109, 179, 255, 0.72);
   box-shadow: 0 0 0 1px rgba(109, 179, 255, 0.22), 0 0 24px rgba(61, 123, 255, 0.18);
 }
+.match-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.match-panel--home-win::before {
+  background: linear-gradient(90deg, rgba(74, 222, 128, 0.08) 0%, rgba(248, 113, 113, 0.03) 100%);
+}
+.match-panel--away-win::before {
+  background: linear-gradient(90deg, rgba(248, 113, 113, 0.03) 0%, rgba(74, 222, 128, 0.08) 100%);
+}
+.match-panel--draw::before {
+  background: linear-gradient(135deg, rgba(100, 100, 120, 0.1) 0%, rgba(15, 23, 42, 0.22) 100%);
+}
+.match-panel__watermark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 120px;
+  line-height: 1;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+.match-panel__watermark--home {
+  left: 0;
+  width: 50%;
+  justify-content: flex-start;
+  padding-left: 18px;
+}
+.match-panel__watermark--away {
+  right: 0;
+  width: 50%;
+  justify-content: flex-end;
+  padding-right: 18px;
+}
+.match-panel__watermark--win {
+  color: #4ade80;
+}
+.match-panel__watermark--loss {
+  color: #f87171;
+}
+.match-panel__watermark--draw {
+  color: #94a3b8;
+  opacity: 0.10;
+  inset: 0;
+  justify-content: center;
+  width: auto;
+  padding: 0;
+}
 .match-panel__top,
 .match-panel__bottom,
 .match-panel__middle {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1390,6 +1448,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   align-items: center;
   gap: 6px;
   min-width: 0;
+}
+.match-panel__side--winner {
+  padding: 8px 10px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0.24), 0 0 18px rgba(74, 222, 128, 0.16);
+}
+.match-panel__side--loser {
+  padding: 8px 10px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.24), 0 0 18px rgba(248, 113, 113, 0.16);
 }
 .match-panel__logo {
   width: 44px;
