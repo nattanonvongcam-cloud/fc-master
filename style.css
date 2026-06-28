@@ -1451,6 +1451,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: var(--shadow-card);
 }
 table { width: 100%; border-collapse: collapse; }
+.page-matches table { table-layout: fixed; }
+.page-matches table th:nth-child(1), .page-matches table td:nth-child(1) { width: 120px; }
+.page-matches table th:nth-child(2), .page-matches table td:nth-child(2) { width: auto; }
+.page-matches table th:nth-child(3), .page-matches table td:nth-child(3) { width: 100px; text-align: center; }
+.page-matches table th:nth-child(4), .page-matches table td:nth-child(4) { width: 90px; text-align: center; }
+.page-matches table th:nth-child(5), .page-matches table td:nth-child(5) { width: 130px; text-align: center; }
+.page-matches table th:nth-child(6), .page-matches table td:nth-child(6) { width: 120px; }
+
 thead th {
   text-align: left;
   font-family: var(--font-eyebrow);
