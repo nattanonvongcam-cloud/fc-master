@@ -550,7 +550,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background:
     linear-gradient(to bottom, transparent 0%, transparent 55%, var(--bg-void) 100%),
     linear-gradient(105deg, rgba(5, 8, 16, 0.94) 0%, rgba(5, 8, 16, 0.7) 42%, rgba(5, 8, 16, 0.9) 100%),
-    url('https://i.ibb.co/nsr1yVLN/FAmjm-BYWYAAL4sd.jpg') center / cover no-repeat;
+    url('https://github.com/nattanonvongcam-cloud/fc-master/blob/main/images/HOME_banner_bacvkground.jpg?raw=true') center / cover no-repeat;
 }
 .hero-bg__grid {
   position: absolute;
