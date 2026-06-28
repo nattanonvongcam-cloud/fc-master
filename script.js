@@ -1146,6 +1146,12 @@ function mvpCountForPlayer(name) {
   return ALL_MATCHES.filter(m => m.mvp && m.mvp.toLowerCase() === name.toLowerCase()).length;
 }
 
+function cleanupEntranceAnimations(container) {
+  container.querySelectorAll('.animate-in').forEach(el => {
+    el.addEventListener('animationend', () => el.classList.remove('animate-in'), { once: true });
+  });
+}
+
 function renderRoster(players, teams) {
   const grid = document.getElementById('roster-grid');
   const countEl = document.getElementById('roster-count');
@@ -1214,6 +1220,8 @@ function renderRoster(players, teams) {
     </a>
     `;
   }).join('');
+
+  cleanupEntranceAnimations(grid);
 }
 
 function renderTeams(teams) {
@@ -1235,6 +1243,8 @@ function renderTeams(teams) {
       <span class="cell-tournament-tag player-card__team">${escapeHTML(team.captain)}</span>
     </a>
   `).join('');
+
+  cleanupEntranceAnimations(grid);
 }
 
 function computeStandings(teams, matches) {
