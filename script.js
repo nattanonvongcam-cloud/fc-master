@@ -1730,12 +1730,13 @@ function setupCardTilt() {
     card.style.setProperty('--rx', `${rotateX}deg`);
     card.style.setProperty('--ry', `${rotateY}deg`);
   });
-  document.addEventListener('mouseleave', (e) => {
-    const card = e.target && e.target.closest ? e.target.closest(SELECTOR) : null;
+  document.addEventListener('mouseout', (e) => {
+    const card = e.target?.closest(SELECTOR);
     if (!card) return;
+    if (card.contains(e.relatedTarget)) return;
     card.style.setProperty('--rx', '0deg');
     card.style.setProperty('--ry', '0deg');
-  }, true);
+  });
 }
 
 async function init() {
