@@ -820,6 +820,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   padding: 28px 32px;
   min-height: 380px;
   border-radius: 24px;
+  height: fit-content;
+  align-self: flex-start;
 }
 .page-home .match-grid {
   display: flex;
@@ -1406,16 +1408,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .page-matches .match-panel__score-wrap {
   border-radius: 16px;
   min-width: 132px;
-}
-.page-matches .match-panel__bottom .match-panel__mvp::after {
-  content: ' · 90 min';
-  display: inline-block;
-  margin-left: 4px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #7e92b8;
 }
 .page-matches .match-panel--home-win .match-panel__score {
   color: #e8fff0;
@@ -2425,6 +2417,28 @@ tbody tr:hover {
   background: linear-gradient(180deg, rgb(var(--team-c, 91 157 255) / 0.8), rgb(var(--team-c, 91 157 255)));
   border-radius: 0 999px 999px 0;
   box-shadow: 0 0 16px rgb(var(--team-c, 91 157 255) / 0.2);
+}
+.team-card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.team-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(var(--team-color, var(--team-c, 91 157 255)), 0.3);
+}
+.team-card:active {
+  transform: translateY(-1px);
+}
+.team-card__corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  background: rgb(var(--team-c, 91 157 255));
+  border-radius: 0 0 6px 0;
+  opacity: 0.9;
+  pointer-events: none;
 }
 .player-card:hover {
   border-color: rgb(var(--team-c, 91 157 255) / 0.3);

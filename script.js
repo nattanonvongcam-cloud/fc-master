@@ -1220,7 +1220,8 @@ function renderTeams(teams) {
   }
 
   grid.innerHTML = teams.map((team, i) => `
-    <a class="panel player-card animate-in" href="team.html?id=${encodeURIComponent(team.teamId)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(team)}">
+    <a class="panel player-card team-card animate-in" href="team.html?id=${encodeURIComponent(team.teamId)}" style="animation-delay:${i * 0.05}s;--team-c: ${teamColorRgb(team)}">
+      <div class="team-card__corner" aria-hidden="true"></div>
       ${team.logo
         ? `<img class="player-card__avatar" src="${escapeHTML(team.logo)}" alt="${escapeHTML(team.name)} logo">`
         : `<div class="player-card__avatar player-card__avatar--fallback">${escapeHTML(initials(team.name))}</div>`}
