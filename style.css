@@ -2442,25 +2442,30 @@ tbody tr:hover {
 }
 .team-card {
   cursor: pointer;
-  transition: all 0.2s ease;
+  border: 1px solid rgba(109, 179, 255, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.team-card::before {
+  background: linear-gradient(135deg, rgb(var(--team-c, 91 157 255)), rgb(var(--team-c, 91 157 255) / 0.5));
+  box-shadow: 0 0 12px rgb(var(--team-c, 91 157 255) / 0.5);
 }
 .team-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(var(--team-color, var(--team-c, 91 157 255)), 0.3);
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgb(var(--team-c, 91 157 255) / 0.5);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 32px rgb(var(--team-c, 91 157 255) / 0.35);
+}
+.team-card:hover .player-card__avatar {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.05), 0 0 36px rgb(var(--team-c, 91 157 255) / 0.5);
+}
+.player-card__avatar {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.team-card:hover .player-card__name {
+  color: rgb(var(--team-c, 91 157 255));
 }
 .team-card:active {
   transform: translateY(-1px);
-}
-.team-card__corner {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
-  background: rgb(var(--team-c, 91 157 255));
-  border-radius: 0 0 6px 0;
-  opacity: 0.9;
-  pointer-events: none;
 }
 .player-card:hover {
   border-color: rgb(var(--team-c, 91 157 255) / 0.3);
@@ -2975,10 +2980,10 @@ body.page-exiting {
 }
 .match-logo {
   position: absolute;
-  top: -20%;
-  bottom: -20%;
-  height: 140%;
-  width: 260px;
+  top: -35%;
+  bottom: -35%;
+  height: 170%;
+  width: 320px;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -2986,13 +2991,13 @@ body.page-exiting {
   z-index: 0;
 }
 .match-logo--home {
-  left: 8px;
+  left: -90px;
   opacity: 0.65;
   -webkit-mask-image: linear-gradient(to right, black 0%, black 35%, transparent 100%);
   mask-image: linear-gradient(to right, black 0%, black 35%, transparent 100%);
 }
 .match-logo--away {
-  right: 8px;
+  right: -90px;
   opacity: 0.65;
   -webkit-mask-image: linear-gradient(to left, black 0%, black 35%, transparent 100%);
   mask-image: linear-gradient(to left, black 0%, black 35%, transparent 100%);
