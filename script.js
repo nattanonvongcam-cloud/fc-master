@@ -662,6 +662,9 @@ function renderMatchesTable() {
       const awayLogo = m.awayLogo
         ? `<img class="match-card-vs__logo" src="${escapeHTML(m.awayLogo)}" alt="${escapeHTML(m.awayTeam)}">`
         : `<div class="match-card-vs__logo match-card-vs__logo--fallback">${escapeHTML(initials(m.awayTeam))}</div>`;
+      const homeTeamClass = result === 'WIN' ? 'match-card-vs__team-name--winner' : result === 'LOSS' ? 'match-card-vs__team-name--loser' : 'match-card-vs__team-name--draw';
+      const awayTeamClass = result === 'LOSS' ? 'match-card-vs__team-name--winner' : result === 'WIN' ? 'match-card-vs__team-name--loser' : 'match-card-vs__team-name--draw';
+
       return `
         <div class="panel match-card-vs animate-in"
              style="animation-delay:${Math.min(i * 0.04, 0.3)}s;--home-c:${rowColorMap[normalizeTeamValue(m.homeTeam)] || '61 123 255'};--away-c:${rowColorMap[normalizeTeamValue(m.awayTeam)] || '61 123 255'}">
@@ -669,7 +672,7 @@ function renderMatchesTable() {
           <div class="match-card-vs__teams">
             <div class="match-card-vs__side">
               ${homeLogo}
-              <span class="match-card-vs__team-name">${escapeHTML(m.homeTeam)}</span>
+              <span class="match-card-vs__team-name ${homeTeamClass}">${escapeHTML(m.homeTeam)}</span>
             </div>
             <div class="match-card-vs__center">
               <span class="match-card-vs__score">${m.scoreFor} – ${m.scoreAgainst}</span>
@@ -677,7 +680,7 @@ function renderMatchesTable() {
             </div>
             <div class="match-card-vs__side">
               ${awayLogo}
-              <span class="match-card-vs__team-name">${escapeHTML(m.awayTeam)}</span>
+              <span class="match-card-vs__team-name ${awayTeamClass}">${escapeHTML(m.awayTeam)}</span>
             </div>
           </div>
           <div class="match-card-vs__footer">
