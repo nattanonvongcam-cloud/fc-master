@@ -818,6 +818,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .page-home #latest-match.panel {
   padding: 28px 32px;
+  min-height: 220px;
   border-radius: 24px;
   height: fit-content;
   align-self: flex-start;
