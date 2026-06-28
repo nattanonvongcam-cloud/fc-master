@@ -2443,6 +2443,7 @@ tbody tr:hover {
 .team-card {
   cursor: pointer;
   border: 1px solid rgba(109, 179, 255, 0.08);
+  border-radius: var(--radius);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .team-card::before {
