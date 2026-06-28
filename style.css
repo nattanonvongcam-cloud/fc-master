@@ -2415,7 +2415,8 @@ tbody tr:hover {
   background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(8,12,22,0.96) 100%);
   border: 1px solid rgba(255,255,255,0.06);
   box-shadow: 0 16px 30px rgba(0,0,0,0.24), 0 2px 8px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.05);
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
   overflow: hidden;
   position: relative;
 }
@@ -2447,7 +2448,8 @@ tbody tr:hover {
   border-radius: 14px;
   clip-path: none;
   border: 1px solid rgba(109, 179, 255, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 .team-card::before {
   content: '';
@@ -2467,6 +2469,7 @@ tbody tr:hover {
   transform: translateY(-6px) scale(1.02);
   border-color: rgb(var(--team-c, 91 157 255) / 0.5);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 32px rgb(var(--team-c, 91 157 255) / 0.35);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .team-card:hover .player-card__avatar {
   transform: scale(1.06);
@@ -2482,6 +2485,7 @@ tbody tr:hover {
   border-color: rgb(var(--team-c, 91 157 255) / 0.3);
   transform: translateY(-4px);
   box-shadow: var(--shadow-card-hover), var(--shadow-inset);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .player-card__avatar {
   width: 98px;
