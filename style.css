@@ -1689,10 +1689,11 @@ tbody tr:hover {
   box-shadow: var(--shadow-card-hover), var(--shadow-inset);
 }
 .player-card__avatar {
-  width: 76px;
-  height: 76px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
   border: 2px solid rgb(var(--team-c, 91 157 255) / 0.6);
   margin-bottom: 8px;
   box-shadow: 0 0 24px rgb(var(--team-c, 91 157 255) / 0.35);
@@ -2165,15 +2166,14 @@ body.page-exiting {
 }
 
 .card-logo-bg--left {
+  right: -20px;
   top: 50%;
-  left: 12px;
   transform: translateY(-50%);
-  width: 160px;
-  height: 160px;
+  width: 200px;
+  height: 200px;
+  opacity: 0.15;
   bottom: auto;
-  -webkit-mask-image: linear-gradient(to right, black 0%, black 30%, transparent 80%);
-  mask-image: linear-gradient(to right, black 0%, black 30%, transparent 80%);
-  opacity: 0.22;
+  left: auto;
 }
 .player-card > *:not(.ink-wash):not(.card-logo-bg),
 .feature-card > *:not(.ink-wash):not(.card-logo-bg) {
