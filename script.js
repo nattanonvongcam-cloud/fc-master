@@ -745,7 +745,6 @@ function renderMatchesTable() {
             </div>
             <div class="match-card-vs__center">
               <span class="match-card-vs__score">${m.scoreFor} – ${m.scoreAgainst}</span>
-              ${badgeFor(result)}
             </div>
             <div class="match-card-vs__side">
               ${awayLogo}
@@ -835,8 +834,7 @@ function renderMatchesTable() {
         </div>
       </div>
       <div class="match-panel__bottom">
-        <div class="match-panel__result ${isDraw ? 'match-panel__result--draw' : isHomeWin ? 'match-panel__result--win' : 'match-panel__result--loss'}">${result}</div>
-        <div class="match-panel__mvp cell-muted">${m.mvp ? `MVP: ${escapeHTML(m.mvp)}` : 'MVP: &mdash;'}</div>
+        <div class="match-panel__mvp">${m.mvp ? `⭐ MVP — ${escapeHTML(m.mvp)}` : 'MVP — None'}</div>
       </div>
     </div>
   `;
