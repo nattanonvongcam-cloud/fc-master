@@ -1613,6 +1613,49 @@ function renderTeamProfile(teams, players, matches) {
   }
 }
 
+function applyDesktopMode(on) {
+  const viewport = document.querySelector('meta[name="viewport"]');
+  if (viewport) {
+    viewport.setAttribute('content', on ? 'width=1280, initial-scale=1.0' : 'width=device-width, initial-scale=1.0');
+  }
+  if (document.body) {
+    document.body.classList.toggle('force-desktop', on);
+  }
+}
+
+function initDesktopModeToggle() {
+  const existing = document.getElementById('desktop-mode-toggle');
+  if (existing) existing.remove();
+
+  const button = document.createElement('button');
+  button.id = 'desktop-mode-toggle';
+  button.type = 'button';
+  button.className = 'desktop-mode-toggle';
+  button.setAttribute('aria-label', 'Toggle desktop mode');
+
+  const iconMonitor = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 18v3"/></svg>';
+  const iconPhone = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg>';
+
+  const isActive = localStorage.getItem('fcm_desktop_mode') === '1';
+  button.classList.toggle('is-active', isActive);
+  button.innerHTML = isActive ? iconMonitor : iconPhone;
+
+  button.addEventListener('click', () => {
+    const next = localStorage.getItem('fcm_desktop_mode') !== '1';
+    if (next) {
+      localStorage.setItem('fcm_desktop_mode', '1');
+    } else {
+      localStorage.removeItem('fcm_desktop_mode');
+    }
+
+    applyDesktopMode(next);
+    button.classList.toggle('is-active', next);
+    button.innerHTML = next ? iconMonitor : iconPhone;
+  });
+
+  document.body.appendChild(button);
+}
+
 // =========================================================
 // INIT — detect which page we're on by its DOM, then render
 // =========================================================
@@ -1724,8 +1767,10 @@ function initTransitions() {
 }
 
 async function init() {
+  applyDesktopMode(localStorage.getItem('fcm_desktop_mode') === '1');
   registerServiceWorker();
   initTransitions();
+  initDesktopModeToggle();
   initBottomNav();
   const isHome = document.getElementById('recent-matches');
   const isMatchesPage = document.getElementById('matches-tbody');
